@@ -6,13 +6,10 @@ const route = useRoute();
 <template>
   <div class="app">
     <nav class="nav">
-      <router-link to="/" class="nav-logo">Management</router-link>
+      <router-link to="/" class="nav-logo">ホーム</router-link>
       <div class="nav-links">
-        <router-link to="/" class="nav-link" :class="{ active: route.path === '/' }">
-          Home
-        </router-link>
         <router-link to="/bid" class="nav-link" :class="{ active: route.path === '/bid' }">
-          Bid Management
+          応募管理
         </router-link>
       </div>
     </nav>

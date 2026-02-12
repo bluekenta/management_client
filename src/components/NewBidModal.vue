@@ -1,7 +1,7 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import Modal from './Modal.vue';
-import { graphql, CREATE_BID_MUTATION, UPDATE_BID_MUTATION } from '@/gql';
+import { graphql, CREATE_BID_MUTATION, UPDATE_BID_MUTATION, BID_STATUSES_QUERY } from '@/gql';
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -11,34 +11,53 @@ const props = defineProps({
 
 const emit = defineEmits(['update:open', 'created', 'updated', 'close']);
 
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 const form = ref({
   companyName: '',
   url: '',
   jobLink: '',
-  status: 'APPLIED',
+  status: '',
+  applyDate: todayStr(),
+  lastUpdated: todayStr(),
 });
 const submitting = ref(false);
 const error = ref(null);
+const statusOptions = ref([]);
 
 const isEdit = computed(() => props.bid != null && typeof props.bid.id === 'number');
 const modalTitle = computed(() => (isEdit.value ? 'Edit application' : 'New application'));
 const submitLabel = computed(() => (submitting.value ? 'Saving…' : isEdit.value ? 'Save' : 'Add'));
 
-const statusOptions = [
-  'APPLIED',
-  'RESUME_FAILED',
-  'INTRO',
-  'INTRO_FAILED',
-  'FIRST_TECH',
-  'FIRST_TECH_FAILED',
-  'FINAL',
-  'FINAL_FAILED',
-  'OFFER',
-];
+async function loadStatusOptions() {
+  try {
+    const data = await graphql(BID_STATUSES_QUERY);
+    statusOptions.value = data.bidStatuses ?? [];
+  } catch {
+    statusOptions.value = [];
+  }
+}
+
+onMounted(loadStatusOptions);
 
 function resetForm() {
-  form.value = { companyName: '', url: '', jobLink: '', status: 'APPLIED' };
+  form.value = {
+    companyName: '',
+    url: '',
+    jobLink: '',
+    status: 'APPLIED',
+    applyDate: todayStr(),
+    lastUpdated: todayStr(),
+  };
   error.value = null;
+}
+
+function parseDateOnly(isoOrDate) {
+  if (!isoOrDate) return todayStr();
+  const d = new Date(isoOrDate);
+  return d.toISOString().slice(0, 10);
 }
 
 function fillForm(b) {
@@ -47,6 +66,8 @@ function fillForm(b) {
     url: b.url ?? '',
     jobLink: b.jobLink ?? '',
     status: b.status ?? 'APPLIED',
+    applyDate: parseDateOnly(b.applyDate),
+    lastUpdated: todayStr(),
   };
 }
 
@@ -69,6 +90,7 @@ async function submit() {
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
           status: form.value.status,
+          lastUpdated: form.value.lastUpdated || todayStr(),
         },
       });
       emit('updated');
@@ -79,6 +101,7 @@ async function submit() {
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
           status: form.value.status,
+          applyDate: form.value.applyDate || todayStr(),
         },
       });
       emit('created');
@@ -126,6 +149,14 @@ watch(
       <div class="row">
         <label>Job link</label>
         <input v-model="form.jobLink" type="url" placeholder="https://..." />
+      </div>
+      <div class="row">
+        <label>Apply date</label>
+        <input v-model="form.applyDate" type="date" />
+      </div>
+      <div v-if="isEdit" class="row">
+        <label>Last updated</label>
+        <input v-model="form.lastUpdated" type="date" />
       </div>
       <div class="row">
         <label>Status</label>

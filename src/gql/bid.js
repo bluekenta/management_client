@@ -1,3 +1,9 @@
+export const BID_STATUSES_QUERY = `
+  query BidStatuses {
+    bidStatuses
+  }
+`;
+
 export const BIDS_QUERY = `
   query Bids {
     bids {
@@ -7,7 +13,7 @@ export const BIDS_QUERY = `
       jobLink
       status
       applyDate
-      updatedAt
+      lastUpdated
     }
   }
 `;
@@ -36,7 +42,11 @@ export const UPDATE_BID_MUTATION = `
     updateBid(id: $id, input: $input) {
       id
       companyName
+      url
+      jobLink
+      applyDate
       status
+      lastUpdated
     }
   }
 `;

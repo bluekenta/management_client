@@ -3,9 +3,7 @@
 
 <template>
   <div class="home">
-    <h1>Welcome</h1>
-    <p class="lead">Manage your job applications and bids from here.</p>
-    <router-link to="/bid" class="nav-btn">Bid Management</router-link>
+    <router-link to="/bid" class="nav-btn">応募管理</router-link>
   </div>
 </template>
 
@@ -13,15 +11,6 @@
 .home {
   text-align: center;
   padding: 3rem 1.5rem;
-}
-.home h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.75rem;
-  font-weight: 600;
-}
-.lead {
-  color: #a1a1aa;
-  margin: 0 0 2rem;
 }
 .nav-btn {
   display: inline-block;
