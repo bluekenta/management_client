@@ -1,4 +1,4 @@
-const graphqlUrl = import.meta.env.VITE_GRAPHQL_URL;
+const graphqlUrl = import.meta.env.VITE_GRAPHQL_URL ?? '/graphql';
 
 export async function gql(query, variables = {}) {
   const res = await fetch(graphqlUrl, {
