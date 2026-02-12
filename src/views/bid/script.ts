@@ -14,6 +14,7 @@ export function useBidView() {
   const currentBidder = ref<string>('');
   const currentCaller = ref<string>('');
   const currentLang = ref<string>('');
+  const companyNameSearch = ref<string>('');
 
   // statuses are fetched from the server (enum values)
   const statuses = ref<string[]>([]);
@@ -54,16 +55,13 @@ export function useBidView() {
   }
 
   async function loadBids(): Promise<void> {
-    loading.value = true;
-    error.value = null;
-    try {
-      const data = await gql(BID.BIDS_QUERY);
-      bids.value = (data.bids ?? []) as TBid[];
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e);
-    } finally {
-      loading.value = false;
-    }
+    await loadBidsByCondition({
+      status: currentStatus.value || undefined,
+      bidder: currentBidder.value || undefined,
+      caller: currentCaller.value || undefined,
+      lang: currentLang.value || undefined,
+      companyName: companyNameSearch.value.trim() || undefined,
+    });
   }
 
   async function deleteBid(id: number): Promise<void> {
@@ -87,7 +85,6 @@ export function useBidView() {
   }
 
   onMounted(() => {
-    loadBids();
     loadOptions();
   });
 
@@ -104,15 +101,20 @@ export function useBidView() {
     }
   }
 
-  watch([currentStatus, currentBidder, currentCaller, currentLang], () => {
-    // Omit enum fields when empty ("" is invalid for GraphQL enums)
-    loadBidsByCondition({
-      status: currentStatus.value || undefined,
-      bidder: currentBidder.value || undefined,
-      caller: currentCaller.value || undefined,
-      lang: currentLang.value || undefined,
-    });
-  });
+  watch(
+    [currentStatus, currentBidder, currentCaller, currentLang, companyNameSearch],
+    () => {
+      // Omit enum fields when empty ("" is invalid for GraphQL enums). No status = backend returns only non-failed bids by default.
+      loadBidsByCondition({
+        status: currentStatus.value || undefined,
+        bidder: currentBidder.value || undefined,
+        caller: currentCaller.value || undefined,
+        lang: currentLang.value || undefined,
+        companyName: companyNameSearch.value.trim() || undefined,
+      });
+    },
+    { immediate: true },
+  );
 
   return {
     bids,
@@ -125,6 +127,7 @@ export function useBidView() {
     currentCaller,
     langs,
     currentLang,
+    companyNameSearch,
     loading,
     error,
     showBidModal,

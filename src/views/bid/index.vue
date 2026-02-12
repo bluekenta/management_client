@@ -12,6 +12,7 @@ const {
   currentCaller,
   langs,
   currentLang,
+  companyNameSearch,
   loading,
   error,
   showBidModal,
@@ -34,6 +35,14 @@ const {
     <el-alert v-if="error" type="error" :title="error" show-icon class="error-alert" />
 
     <div class="toolbar">
+      <!-- 会社名検索 -->
+      <el-input
+        v-model="companyNameSearch"
+        placeholder="会社名で検索"
+        clearable
+        class="filter-input"
+      />
+
       <!-- 応募ステータスリスト -->
       <el-select
         v-model="currentStatus"
@@ -205,6 +214,9 @@ const {
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+.filter-input {
+  width: 200px;
 }
 .filter-select {
   width: 200px;
