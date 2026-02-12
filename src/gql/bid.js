@@ -18,6 +18,20 @@ export const BIDS_QUERY = `
   }
 `;
 
+export const BID_BY_STATUS_QUERY = `
+  query BidsByStatus($status: String!) {
+    bidsByStatus(status: $status) {
+      id
+      companyName
+      url
+      jobLink
+      status
+      applyDate
+      lastUpdated
+    }
+  }
+`;
+
 export const CREATE_BID_MUTATION = `
   mutation CreateBid($input: CreateBidInput!) {
     createBid(input: $input) {

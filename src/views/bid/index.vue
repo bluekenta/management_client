@@ -3,7 +3,9 @@ import NewBidModal from '@/components/NewBidModal.vue';
 import { useBidView } from './script';
 
 const {
-  bids,
+  filteredBids,
+  statuses,
+  currentStatus,
   loading,
   error,
   showBidModal,
@@ -23,12 +25,26 @@ const {
       <h1>応募情報</h1>
     </header>
 
-    <p v-if="error" class="error">{{ error }}</p>
+    <el-alert v-if="error" type="error" :title="error" show-icon class="error-alert" />
 
     <div class="toolbar">
-      <button type="button" class="btn-add" @click="openCreateModal">
+      <el-select
+        v-model="currentStatus"
+        placeholder="状態で絞り込み"
+        clearable
+        class="filter-select"
+      >
+        <el-option label="すべて" value="" />
+        <el-option
+          v-for="s in statuses"
+          :key="s"
+          :label="s"
+          :value="s"
+        />
+      </el-select>
+      <el-button type="primary" @click="openCreateModal">
         + 応募情報を追加
-      </button>
+      </el-button>
     </div>
 
     <NewBidModal
@@ -40,50 +56,87 @@ const {
     />
 
     <section class="list">
-      <h2>応募情報</h2>
-      <p v-if="loading">Loading…</p>
-      <div v-else-if="bids.length" class="table-wrap">
-        <table class="bid-table">
-          <thead>
-            <tr>
-              <th>会社名</th>
-              <th>応募日</th>
-              <th>応募状態</th>
-              <th>最終更新</th>
-              <th>会社URL</th>
-              <th>求人URL</th>
-              <th class="col-actions"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="bid in bids" :key="bid.id">
-              <td class="col-company">{{ bid.companyName }}</td>
-              <td class="col-date">{{ formatDate(bid.applyDate) }}</td>
-              <td><span class="status">{{ bid.status ?? '—' }}</span></td>
-              <td class="col-date">{{ formatDate(bid.lastUpdated) }}</td>
-              <td class="col-link">
-                <a v-if="bid.url" :href="bid.url" target="_blank" rel="noopener">{{ bid.url }}</a>
-                <span v-else>—</span>
-              </td>
-              <td class="col-link">
-                <a v-if="bid.jobLink" :href="bid.jobLink" target="_blank" rel="noopener">Job link</a>
-                <span v-else>—</span>
-              </td>
-              <td class="col-actions">
-                <button type="button" class="btn-edit" @click="openEditModal(bid)">
-                  編集
-                </button>
-                <button type="button" class="btn-delete" @click="deleteBid(bid.id)">
-                  削除
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p v-else class="empty">応募情報が見つかれません。</p>
+      <h2 class="list-title">応募情報</h2>
+      <el-table
+        v-loading="loading"
+        :data="filteredBids"
+        stripe
+        style="width: 100%"
+        class="bid-table"
+      >
+        <el-table-column prop="companyName" label="会社名" min-width="120" />
+        <el-table-column label="応募日" min-width="100">
+          <template #default="{ row }">
+            {{ formatDate(row.applyDate) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="応募状態" min-width="120">
+          <template #default="{ row }">
+            <el-tag size="small">{{ row.status ?? '—' }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="最終更新" min-width="100">
+          <template #default="{ row }">
+            {{ formatDate(row.lastUpdated) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="会社URL" min-width="140">
+          <template #default="{ row }">
+            <el-link v-if="row.url" :href="row.url" target="_blank" type="primary">
+              {{ row.url }}
+            </el-link>
+            <span v-else>—</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="求人URL" width="100">
+          <template #default="{ row }">
+            <el-link v-if="row.jobLink" :href="row.jobLink" target="_blank" type="primary">
+              リンク
+            </el-link>
+            <span v-else>—</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="160" fixed="right">
+          <template #default="{ row }">
+            <el-button type="primary" link size="small" @click="openEditModal(row)">
+              編集
+            </el-button>
+            <el-button type="danger" link size="small" @click="deleteBid(row.id)">
+              削除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-empty v-if="!loading && !filteredBids.length" description="応募情報が見つかりません。" />
     </section>
   </div>
 </template>
 
-<style scoped src="./style.less" lang="less" />
+<style scoped>
+.page-header h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.error-alert {
+  margin-bottom: 1rem;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.filter-select {
+  width: 200px;
+}
+.list-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  color: var(--el-text-color-secondary);
+}
+.bid-table {
+  margin-bottom: 1rem;
+}
+</style>

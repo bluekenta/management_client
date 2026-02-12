@@ -1,4 +1,4 @@
-@import '../../styles/variables.less';
+@import "../../styles/variables.less";
 
 .page-header h1 {
   margin: 0 0 1.5rem;
@@ -16,6 +16,17 @@
 
 .toolbar {
   margin-bottom: 1.5rem;
+
+  .filter {
+    margin-right: 1rem;
+    select {
+      background: transparent;
+      color: @text;
+      border: 0.5px solid @border;
+      border-radius: 8px;
+      padding: 8px;
+    }
+  }
 }
 
 .btn-add {

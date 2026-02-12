@@ -1,6 +1,5 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
-import Modal from './Modal.vue';
 import { graphql, CREATE_BID_MUTATION, UPDATE_BID_MUTATION, BID_STATUSES_QUERY } from '@/gql';
 
 const props = defineProps({
@@ -19,7 +18,7 @@ const form = ref({
   companyName: '',
   url: '',
   jobLink: '',
-  status: '',
+  status: 'APPLIED',
   applyDate: todayStr(),
   lastUpdated: todayStr(),
 });
@@ -28,8 +27,8 @@ const error = ref(null);
 const statusOptions = ref([]);
 
 const isEdit = computed(() => props.bid != null && typeof props.bid.id === 'number');
-const modalTitle = computed(() => (isEdit.value ? 'Edit application' : 'New application'));
-const submitLabel = computed(() => (submitting.value ? 'Saving…' : isEdit.value ? 'Save' : 'Add'));
+const modalTitle = computed(() => (isEdit.value ? '応募を編集' : '新規応募'));
+const submitLabel = computed(() => (submitting.value ? '保存中…' : isEdit.value ? '保存' : '追加'));
 
 async function loadStatusOptions() {
   try {
@@ -130,111 +129,75 @@ watch(
 </script>
 
 <template>
-  <Modal
-    :open="open"
+  <el-dialog
+    :model-value="open"
     :title="modalTitle"
-    @update:open="(v) => emit('update:open', v)"
+    width="420px"
+    destroy-on-close
+    @update:model-value="(v) => { if (!v) close(); }"
     @close="close"
   >
-    <form @submit.prevent="submit">
-      <p v-if="error" class="error">{{ error }}</p>
-      <div class="row">
-        <label>Company</label>
-        <input v-model="form.companyName" required placeholder="Company name" />
-      </div>
-      <div class="row">
-        <label>URL</label>
-        <input v-model="form.url" type="url" placeholder="https://..." />
-      </div>
-      <div class="row">
-        <label>Job link</label>
-        <input v-model="form.jobLink" type="url" placeholder="https://..." />
-      </div>
-      <div class="row">
-        <label>Apply date</label>
-        <input v-model="form.applyDate" type="date" />
-      </div>
-      <div v-if="isEdit" class="row">
-        <label>Last updated</label>
-        <input v-model="form.lastUpdated" type="date" />
-      </div>
-      <div class="row">
-        <label>Status</label>
-        <select v-model="form.status">
-          <option v-for="s in statusOptions" :key="s" :value="s">{{ s }}</option>
-        </select>
-      </div>
-      <div class="actions">
-        <button type="button" class="btn-secondary" @click="close">Cancel</button>
-        <button type="submit" :disabled="submitting">
+    <el-form label-position="top" @submit.prevent="submit">
+      <el-alert v-if="error" type="error" :title="error" show-icon class="form-error" />
+
+      <el-form-item label="会社名" required>
+        <el-input v-model="form.companyName" placeholder="会社名" clearable />
+      </el-form-item>
+      <el-form-item label="URL">
+        <el-input v-model="form.url" type="url" placeholder="https://..." clearable />
+      </el-form-item>
+      <el-form-item label="求人URL">
+        <el-input v-model="form.jobLink" type="url" placeholder="https://..." clearable />
+      </el-form-item>
+
+      <el-form-item v-if="!isEdit" label="応募日">
+        <el-date-picker
+          v-model="form.applyDate"
+          type="date"
+          value-format="YYYY-MM-DD"
+          placeholder="日付を選択"
+          style="width: 100%"
+        />
+      </el-form-item>
+      <el-form-item v-if="isEdit" label="最終更新">
+        <el-date-picker
+          v-model="form.lastUpdated"
+          type="date"
+          value-format="YYYY-MM-DD"
+          placeholder="日付を選択"
+          style="width: 100%"
+        />
+      </el-form-item>
+
+      <el-form-item label="状態">
+        <el-select v-model="form.status" placeholder="状態" style="width: 100%">
+          <el-option
+            v-for="s in statusOptions"
+            :key="s"
+            :label="s"
+            :value="s"
+          />
+        </el-select>
+      </el-form-item>
+
+      <div class="form-actions">
+        <el-button @click="close">キャンセル</el-button>
+        <el-button type="primary" :loading="submitting" @click="submit">
           {{ submitLabel }}
-        </button>
+        </el-button>
       </div>
-    </form>
-  </Modal>
+    </el-form>
+  </el-dialog>
 </template>
 
 <style scoped>
-.error {
-  background: #7f1d1d;
-  color: #fecaca;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
+.form-error {
   margin-bottom: 1rem;
-  font-size: 0.875rem;
 }
-.row {
-  margin-bottom: 0.75rem;
-}
-.row label {
-  display: block;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-  color: #a1a1aa;
-}
-input,
-select {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #3f3f46;
-  border-radius: 6px;
-  background: #18181b;
-  color: #e4e4e7;
-}
-input:focus,
-select:focus {
-  outline: none;
-  border-color: #6366f1;
-}
-.actions {
+.form-actions {
   display: flex;
-  gap: 0.75rem;
   justify-content: flex-end;
+  gap: 0.75rem;
   margin-top: 1.25rem;
-}
-button {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: none;
-  border-radius: 6px;
-  background: #6366f1;
-  color: white;
-  cursor: pointer;
-}
-button:hover:not(:disabled) {
-  background: #4f46e5;
-}
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.btn-secondary {
-  background: #3f3f46;
-  color: #e4e4e7;
-}
-.btn-secondary:hover {
-  background: #52525b;
 }
 </style>

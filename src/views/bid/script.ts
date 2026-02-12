@@ -1,5 +1,5 @@
-import { ref, onMounted } from 'vue';
-import { graphql, BIDS_QUERY, DELETE_BID_MUTATION } from '@/gql';
+import { ref, onMounted, computed, watch } from 'vue';
+import { graphql, BIDS_QUERY, BID_BY_STATUS_QUERY, BID_STATUSES_QUERY, DELETE_BID_MUTATION } from '@/gql';
 import type { TBid } from './types.ts';
 
 export function useBidView() {
@@ -8,6 +8,27 @@ export function useBidView() {
   const error = ref<string | null>(null);
   const showBidModal = ref(false);
   const editingBid = ref<TBid | null>(null);
+  // '' means no filter (show all)
+  const currentStatus = ref<string>('');
+
+  // statuses are fetched from the server (enum values)
+  const statuses = ref<string[]>([]);
+
+  async function loadStatuses(): Promise<void> {
+    try {
+      const data = await graphql(BID_STATUSES_QUERY);
+      statuses.value = (data.bidStatuses ?? []) as string[];
+    } catch (e) {
+      // non-fatal: keep empty list
+      console.warn('loadStatuses error', e);
+    }
+  }
+
+  const filteredBids = computed(() => {
+    // kept for backward compatibility in case someone reads filteredBids
+    if (!currentStatus.value) return bids.value;
+    return bids.value.filter((b) => (b.status ?? '') === currentStatus.value);
+  });
 
   function openCreateModal(): void {
     editingBid.value = null;
@@ -36,6 +57,20 @@ export function useBidView() {
     }
   }
 
+  async function loadBidsByStatus(status: string): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    try {
+      // GraphQL expects an enum value for Status; pass the selected status
+      const data = await graphql(BID_BY_STATUS_QUERY, { status });
+      bids.value = (data.bidsByStatus ?? []) as TBid[];
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : String(e);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function deleteBid(id: number): Promise<void> {
     if (!confirm('Delete this application?')) return;
     error.value = null;
@@ -56,10 +91,25 @@ export function useBidView() {
     });
   }
 
-  onMounted(loadBids);
+  onMounted(() => {
+    loadBids();
+    loadStatuses();
+  });
+
+  // When the currentStatus changes, fetch appropriate data from server
+  watch(currentStatus, (val) => {
+    if (!val) {
+      loadBids();
+    } else {
+      loadBidsByStatus(val);
+    }
+  });
 
   return {
     bids,
+    filteredBids,
+    statuses,
+    currentStatus,
     loading,
     error,
     showBidModal,
