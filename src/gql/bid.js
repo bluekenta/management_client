@@ -15,9 +15,9 @@ export const BIDS_QUERY = `
   }
 `;
 
-export const BID_BY_STATUS_QUERY = `
-  query BidsByStatus($status: String!) {
-    bidsByStatus(status: $status) {
+export const BIDS_BY_CONDITION_QUERY = `
+  query BidsByCondition($condition: BidConditionInput!) {
+    bidsByCondition(condition: $condition) {
       id
       companyName
       url

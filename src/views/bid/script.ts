@@ -1,6 +1,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { gql, BID, CONFIG } from '@/gql';
 import type { TBid } from './types.ts';
+import type { IBidConditionInput } from '@/types/bid.ts';
 
 export function useBidView() {
   const bids = ref<TBid[]>([]);
@@ -10,17 +11,25 @@ export function useBidView() {
   const editingBid = ref<TBid | null>(null);
   // '' means no filter (show all)
   const currentStatus = ref<string>('');
+  const currentBidder = ref<string>('');
+  const currentCaller = ref<string>('');
+  const currentLang = ref<string>('');
 
   // statuses are fetched from the server (enum values)
   const statuses = ref<string[]>([]);
+  const bidders = ref<string[]>([]);
+  const callers = ref<string[]>([]);
+  const langs = ref<string[]>([]);
 
-  async function loadStatuses(): Promise<void> {
+  async function loadOptions(): Promise<void> {
     try {
-      const data = await gql(CONFIG.BID_STATUSES_QUERY);
-      statuses.value = (data.bidStatuses ?? []) as string[];
+      statuses.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ??
+        []) as string[];
+      langs.value = ((await gql(CONFIG.BID_LANGS_QUERY)).langs ?? []) as string[];
+      bidders.value = ((await gql(CONFIG.BID_BIDDERS_QUERY)).bidders ?? []) as string[];
+      callers.value = ((await gql(CONFIG.BID_CALLERS_QUERY)).callers ?? []) as string[];
     } catch (e) {
-      // non-fatal: keep empty list
-      console.warn('loadStatuses error', e);
+      console.error("Failed to load options:", e);
     }
   }
 
@@ -57,20 +66,6 @@ export function useBidView() {
     }
   }
 
-  async function loadBidsByStatus(status: string): Promise<void> {
-    loading.value = true;
-    error.value = null;
-    try {
-      // GraphQL expects an enum value for Status; pass the selected status
-      const data = await gql(BID.BID_BY_STATUS_QUERY, { status });
-      bids.value = (data.bidsByStatus ?? []) as TBid[];
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e);
-    } finally {
-      loading.value = false;
-    }
-  }
-
   async function deleteBid(id: number): Promise<void> {
     if (!confirm('Delete this application?')) return;
     error.value = null;
@@ -93,16 +88,30 @@ export function useBidView() {
 
   onMounted(() => {
     loadBids();
-    loadStatuses();
+    loadOptions();
   });
 
-  // When the currentStatus changes, fetch appropriate data from server
-  watch(currentStatus, (val) => {
-    if (!val) {
-      loadBids();
-    } else {
-      loadBidsByStatus(val);
+  async function loadBidsByCondition(condition: IBidConditionInput): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const data = await gql(BID.BIDS_BY_CONDITION_QUERY, { condition });
+      bids.value = (data.bidsByCondition ?? []) as TBid[];
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : String(e);
+    } finally {
+      loading.value = false;
     }
+  }
+
+  watch([currentStatus, currentBidder, currentCaller, currentLang], () => {
+    // Omit enum fields when empty ("" is invalid for GraphQL enums)
+    loadBidsByCondition({
+      status: currentStatus.value || undefined,
+      bidder: currentBidder.value || undefined,
+      caller: currentCaller.value || undefined,
+      lang: currentLang.value || undefined,
+    });
   });
 
   return {
@@ -110,6 +119,12 @@ export function useBidView() {
     filteredBids,
     statuses,
     currentStatus,
+    bidders,
+    currentBidder,
+    callers,
+    currentCaller,
+    langs,
+    currentLang,
     loading,
     error,
     showBidModal,

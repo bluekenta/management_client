@@ -6,6 +6,12 @@ const {
   filteredBids,
   statuses,
   currentStatus,
+  bidders,
+  currentBidder,
+  callers,
+  currentCaller,
+  langs,
+  currentLang,
   loading,
   error,
   showBidModal,
@@ -28,6 +34,7 @@ const {
     <el-alert v-if="error" type="error" :title="error" show-icon class="error-alert" />
 
     <div class="toolbar">
+      <!-- 応募ステータスリスト -->
       <el-select
         v-model="currentStatus"
         placeholder="状態で絞り込み"
@@ -42,6 +49,56 @@ const {
           :value="s"
         />
       </el-select>
+
+      <!-- プロセス担当者リスト -->
+      <el-select
+        v-model="currentBidder"
+        placeholder="プロセス担当者で絞り込み"
+        clearable
+        class="filter-select"
+      >
+        <el-option label="すべて" value="" />
+        <el-option
+          v-for="b in bidders"
+          :key="b"
+          :label="b"
+          :value="b"
+        />
+      </el-select>
+
+      <!-- MTG担当者リスト -->
+      <el-select
+        v-model="currentCaller"
+        placeholder="MTG担当者で絞り込み"
+        clearable
+        class="filter-select"
+      >
+        <el-option label="すべて" value="" />
+        <el-option
+          v-for="c in callers"
+          :key="c"
+          :label="c"
+          :value="c"
+        />
+      </el-select>
+
+      <!-- 言語リスト -->
+      <el-select
+        v-model="currentLang"
+        placeholder="言語で絞り込み"
+        clearable
+        class="filter-select"
+      >
+        <el-option label="すべて" value="" />
+        <el-option
+          v-for="l in langs"
+          :key="l"
+          :label="l"
+          :value="l"
+        />
+      </el-select>
+
+      <!-- 応募情報を追加 -->
       <el-button type="primary" @click="openCreateModal">
         + 応募情報を追加
       </el-button>
