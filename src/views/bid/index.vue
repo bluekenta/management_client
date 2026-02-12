@@ -70,30 +70,52 @@ const {
             {{ formatDate(row.applyDate) }}
           </template>
         </el-table-column>
+        <!-- 応募状態 -->
         <el-table-column prop="status" label="応募状態" min-width="120">
           <template #default="{ row }">
             <el-tag size="small">{{ row.status ?? '—' }}</el-tag>
           </template>
         </el-table-column>
+        <!-- 最終更新 -->
         <el-table-column label="最終更新" min-width="100">
           <template #default="{ row }">
             {{ formatDate(row.lastUpdated) }}
           </template>
         </el-table-column>
+        <!-- 会社URL -->
         <el-table-column label="会社URL" min-width="140">
           <template #default="{ row }">
             <el-link v-if="row.url" :href="row.url" target="_blank" type="primary">
-              {{ row.url }}
+              リンク
             </el-link>
             <span v-else>—</span>
           </template>
         </el-table-column>
+        <!-- 求人URL -->
         <el-table-column label="求人URL" width="100">
           <template #default="{ row }">
             <el-link v-if="row.jobLink" :href="row.jobLink" target="_blank" type="primary">
               リンク
             </el-link>
             <span v-else>—</span>
+          </template>
+        </el-table-column>
+        <!-- ポジション言語 -->
+        <el-table-column label="言語" width="100">
+          <template #default="{ row }">
+            {{ row.lang ?? '—' }}
+          </template>
+        </el-table-column>
+        <!-- プロセス担当者 -->
+        <el-table-column label="応募者" width="120">
+          <template #default="{ row }">
+            {{ row.bidder ?? '—' }}
+          </template>
+        </el-table-column>
+        <!-- MTG担当者 -->
+        <el-table-column label="MTG担当者" width="120">
+          <template #default="{ row }">
+            {{ row.caller ?? '—' }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="160" fixed="right">

@@ -1,6 +1,6 @@
-<script setup>
-import { ref, watch, computed, onMounted } from 'vue';
-import { graphql, CREATE_BID_MUTATION, UPDATE_BID_MUTATION, BID_STATUSES_QUERY } from '@/gql';
+<script setup lang="ts">
+import { ref, watch, computed, onMounted } from "vue";
+import { gql, BID, CONFIG } from "@/gql";
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -8,45 +8,62 @@ const props = defineProps({
   bid: { type: Object, default: null },
 });
 
-const emit = defineEmits(['update:open', 'created', 'updated', 'close']);
+const emit = defineEmits(["update:open", "created", "updated", "close"]);
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
 const form = ref({
-  companyName: '',
-  url: '',
-  jobLink: '',
-  status: 'APPLIED',
+  companyName: "",
+  url: "",
+  jobLink: "",
+  status: "APPLIED",
+  lang: "",
+  bidder: "",
+  caller: "",
   applyDate: todayStr(),
   lastUpdated: todayStr(),
 });
 const submitting = ref(false);
 const error = ref(null);
-const statusOptions = ref([]);
+const statusOptions = ref<string[]>([]);
+const langOptions = ref<string[]>([]);
+const bidderOptions = ref<string[]>([]);
+const callerOptions = ref<string[]>([]);
 
-const isEdit = computed(() => props.bid != null && typeof props.bid.id === 'number');
-const modalTitle = computed(() => (isEdit.value ? '応募を編集' : '新規応募'));
-const submitLabel = computed(() => (submitting.value ? '保存中…' : isEdit.value ? '保存' : '追加'));
+const isEdit = computed(
+  () => props.bid != null && typeof props.bid.id === "number",
+);
+const modalTitle = computed(() => (isEdit.value ? "応募を編集" : "新規応募"));
+const submitLabel = computed(() =>
+  submitting.value ? "保存中…" : isEdit.value ? "保存" : "追加",
+);
 
-async function loadStatusOptions() {
+async function loadOptions() {
   try {
-    const data = await graphql(BID_STATUSES_QUERY);
-    statusOptions.value = data.bidStatuses ?? [];
-  } catch {
-    statusOptions.value = [];
+    statusOptions.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ??
+      []) as string[];
+    // config queries return fields named `langs`, `bidders`, and `callers`
+    langOptions.value = ((await gql(CONFIG.BID_LANGS_QUERY)).langs ?? []) as string[];
+    bidderOptions.value = ((await gql(CONFIG.BID_BIDDERS_QUERY)).bidders ?? []) as string[];
+    callerOptions.value = ((await gql(CONFIG.BID_CALLERS_QUERY)).callers ?? []) as string[];
+  } catch (e) {
+    console.error("Failed to load options:", e);
   }
 }
 
-onMounted(loadStatusOptions);
+onMounted(loadOptions);
 
 function resetForm() {
   form.value = {
-    companyName: '',
-    url: '',
-    jobLink: '',
-    status: 'APPLIED',
+    companyName: "",
+    url: "",
+    jobLink: "",
+    status: "APPLIED",
+    lang: "EN",
+    bidder: "WEIMA",
+    caller: "GALDINO",
     applyDate: todayStr(),
     lastUpdated: todayStr(),
   };
@@ -61,18 +78,21 @@ function parseDateOnly(isoOrDate) {
 
 function fillForm(b) {
   form.value = {
-    companyName: b.companyName ?? '',
-    url: b.url ?? '',
-    jobLink: b.jobLink ?? '',
-    status: b.status ?? 'APPLIED',
+    companyName: b.companyName ?? "",
+    url: b.url ?? "",
+    jobLink: b.jobLink ?? "",
+    status: b.status ?? "APPLIED",
+    lang: b.lang ?? "EN",
+    bidder: b.bidder ?? "",
+    caller: b.caller ?? "",
     applyDate: parseDateOnly(b.applyDate),
     lastUpdated: todayStr(),
   };
 }
 
 function close() {
-  emit('update:open', false);
-  emit('close');
+  emit("update:open", false);
+  emit("close");
   resetForm();
 }
 
@@ -82,28 +102,34 @@ async function submit() {
   error.value = null;
   try {
     if (isEdit.value && props.bid?.id != null) {
-      await graphql(UPDATE_BID_MUTATION, {
+      await gql(BID.UPDATE_BID_MUTATION, {
         id: props.bid.id,
         input: {
           companyName: form.value.companyName.trim(),
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
           status: form.value.status,
+          lang: form.value.lang,
+          bidder: form.value.bidder,
+          caller: form.value.caller,
           lastUpdated: form.value.lastUpdated || todayStr(),
         },
       });
-      emit('updated');
+      emit("updated");
     } else {
-      await graphql(CREATE_BID_MUTATION, {
+      await gql(BID.CREATE_BID_MUTATION, {
         input: {
           companyName: form.value.companyName.trim(),
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
           status: form.value.status,
+          lang: form.value.lang,
+          bidder: form.value.bidder,
+          caller: form.value.caller,
           applyDate: form.value.applyDate || todayStr(),
         },
       });
-      emit('created');
+      emit("created");
     }
     close();
   } catch (e) {
@@ -124,7 +150,7 @@ watch(
       resetForm();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
@@ -134,20 +160,40 @@ watch(
     :title="modalTitle"
     width="420px"
     destroy-on-close
-    @update:model-value="(v) => { if (!v) close(); }"
+    @update:model-value="
+      (v) => {
+        if (!v) close();
+      }
+    "
     @close="close"
   >
     <el-form label-position="top" @submit.prevent="submit">
-      <el-alert v-if="error" type="error" :title="error" show-icon class="form-error" />
+      <el-alert
+        v-if="error"
+        type="error"
+        :title="error"
+        show-icon
+        class="form-error"
+      />
 
       <el-form-item label="会社名" required>
         <el-input v-model="form.companyName" placeholder="会社名" clearable />
       </el-form-item>
       <el-form-item label="URL">
-        <el-input v-model="form.url" type="url" placeholder="https://..." clearable />
+        <el-input
+          v-model="form.url"
+          type="url"
+          placeholder="https://..."
+          clearable
+        />
       </el-form-item>
       <el-form-item label="求人URL">
-        <el-input v-model="form.jobLink" type="url" placeholder="https://..." clearable />
+        <el-input
+          v-model="form.jobLink"
+          type="url"
+          placeholder="https://..."
+          clearable
+        />
       </el-form-item>
 
       <el-form-item v-if="!isEdit" label="応募日">
@@ -176,6 +222,42 @@ watch(
             :key="s"
             :label="s"
             :value="s"
+          />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="言語">
+        <el-select v-model="form.lang" placeholder="言語" style="width: 100%">
+          <el-option v-for="l in langOptions" :key="l" :label="l" :value="l" />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="応募者">
+        <el-select
+          v-model="form.bidder"
+          placeholder="応募者"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="b in bidderOptions"
+            :key="b"
+            :label="b"
+            :value="b"
+          />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="MTG担当者">
+        <el-select
+          v-model="form.caller"
+          placeholder="MTG担当者"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="c in callerOptions"
+            :key="c"
+            :label="c"
+            :value="c"
           />
         </el-select>
       </el-form-item>

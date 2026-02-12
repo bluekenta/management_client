@@ -1,9 +1,3 @@
-export const BID_STATUSES_QUERY = `
-  query BidStatuses {
-    bidStatuses
-  }
-`;
-
 export const BIDS_QUERY = `
   query Bids {
     bids {
@@ -14,6 +8,9 @@ export const BIDS_QUERY = `
       status
       applyDate
       lastUpdated
+      lang
+      bidder
+      caller
     }
   }
 `;
@@ -28,6 +25,9 @@ export const BID_BY_STATUS_QUERY = `
       status
       applyDate
       lastUpdated
+      lang
+      bidder
+      caller
     }
   }
 `;
@@ -41,6 +41,10 @@ export const CREATE_BID_MUTATION = `
       jobLink
       status
       applyDate
+      lastUpdated
+      lang
+      bidder
+      caller
     }
   }
 `;
@@ -61,6 +65,9 @@ export const UPDATE_BID_MUTATION = `
       applyDate
       status
       lastUpdated
+      lang
+      bidder
+      caller
     }
   }
 `;

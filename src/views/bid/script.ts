@@ -1,5 +1,5 @@
 import { ref, onMounted, computed, watch } from 'vue';
-import { graphql, BIDS_QUERY, BID_BY_STATUS_QUERY, BID_STATUSES_QUERY, DELETE_BID_MUTATION } from '@/gql';
+import { gql, BID, CONFIG } from '@/gql';
 import type { TBid } from './types.ts';
 
 export function useBidView() {
@@ -16,7 +16,7 @@ export function useBidView() {
 
   async function loadStatuses(): Promise<void> {
     try {
-      const data = await graphql(BID_STATUSES_QUERY);
+      const data = await gql(CONFIG.BID_STATUSES_QUERY);
       statuses.value = (data.bidStatuses ?? []) as string[];
     } catch (e) {
       // non-fatal: keep empty list
@@ -48,7 +48,7 @@ export function useBidView() {
     loading.value = true;
     error.value = null;
     try {
-      const data = await graphql(BIDS_QUERY);
+      const data = await gql(BID.BIDS_QUERY);
       bids.value = (data.bids ?? []) as TBid[];
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
@@ -62,7 +62,7 @@ export function useBidView() {
     error.value = null;
     try {
       // GraphQL expects an enum value for Status; pass the selected status
-      const data = await graphql(BID_BY_STATUS_QUERY, { status });
+      const data = await gql(BID.BID_BY_STATUS_QUERY, { status });
       bids.value = (data.bidsByStatus ?? []) as TBid[];
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
@@ -75,7 +75,7 @@ export function useBidView() {
     if (!confirm('Delete this application?')) return;
     error.value = null;
     try {
-      await graphql(DELETE_BID_MUTATION, { id });
+      await gql(BID.DELETE_BID_MUTATION, { id });
       await loadBids();
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);

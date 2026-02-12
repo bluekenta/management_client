@@ -6,5 +6,8 @@ export interface TBid {
   status?: string | null;
   applyDate: string;
   lastUpdated?: string | null;
+  bidder?: string | null;
+  caller?: string | null;
+  lang?: string | null;
   updatedAt?: string | null;
 }
