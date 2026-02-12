@@ -1,5 +1,5 @@
 import { ref, onMounted } from 'vue';
-import { graphql, BIDS_QUERY, DELETE_BID_MUTATION } from '../../graphql';
+import { graphql, BIDS_QUERY, DELETE_BID_MUTATION } from '@/gql';
 import type { TBid } from './types.ts';
 
 export function useBidView() {

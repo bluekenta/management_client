@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import Modal from './Modal.vue';
-import { graphql, CREATE_BID_MUTATION, UPDATE_BID_MUTATION } from '../graphql';
+import { graphql, CREATE_BID_MUTATION, UPDATE_BID_MUTATION } from '@/gql';
 
 const props = defineProps({
   open: { type: Boolean, default: false },

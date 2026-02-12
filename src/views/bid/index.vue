@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NewBidModal from '../../components/NewBidModal.vue';
+import NewBidModal from '@/components/NewBidModal.vue';
 import { useBidView } from './script.ts';
 
 const {
