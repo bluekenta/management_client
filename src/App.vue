@@ -1,10 +1,14 @@
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { computed } from 'vue';
 import { useTheme } from '@/composables/useTheme';
+import { useAuth } from '@/composables/useAuth';
+import { clearAuthToken } from '@/gql';
 
 const route = useRoute();
+const router = useRouter();
 const { isDark } = useTheme();
+const { isLoggedIn } = useAuth();
 
 const activeIndex = computed(() => {
   const p = route.path;
@@ -14,6 +18,11 @@ const activeIndex = computed(() => {
   if (p === '/bidder') return '/bidder';
   return '/';
 });
+
+function logout() {
+  clearAuthToken();
+  router.replace('/login');
+}
 </script>
 
 <template>
@@ -32,7 +41,8 @@ const activeIndex = computed(() => {
         <el-menu-item index="/bidder">応募者管理</el-menu-item>
         <el-menu-item index="/caller">MTG担当者管理</el-menu-item>
       </el-menu>
-      <div class="theme-toggle">
+      <div class="header-right">
+        <el-button v-if="isLoggedIn()" type="danger" link @click="logout">ログアウト</el-button>
         <el-tooltip :content="isDark ? 'ライト' : 'ダーク'" placement="bottom">
           <el-switch v-model="isDark" inline-prompt active-text="暗" inactive-text="明" />
         </el-tooltip>
@@ -79,8 +89,14 @@ body {
   flex: 1;
   border-bottom: none;
 }
-.theme-toggle {
+.header-right {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.theme-toggle {
+  margin-left: 0;
 }
 .app-main {
   flex: 1;

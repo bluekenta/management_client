@@ -4,16 +4,18 @@ import BidDetailModal from '@/components/BidDetailModal.vue';
 import { useBidView } from './script';
 
 const {
-  filteredBids,
+  sortedBids,
+  onSortChange,
   steps,
   statuses,
+  bidders,
+  callers,
+  langs,
+  activeAgents,
   currentStep,
   currentStatus,
-  bidders,
   currentBidderId,
-  callers,
   currentCallerId,
-  langs,
   currentLang,
   companyNameSearch,
   startDate,
@@ -24,14 +26,19 @@ const {
   editingBid,
   showDetailModal,
   detailBid,
+  editingTextValue,
+  isEditing,
+  startEdit,
+  cancelEdit,
+  confirmEditText,
+  updateBidField,
   openCreateModal,
-  openEditModal,
   openDetailModal,
   onModalClose,
   onDetailUpdated,
   loadBids,
-  deleteBid,
   formatDate,
+  formatDateForPicker,
 } = useBidView();
 </script>
 
@@ -176,92 +183,206 @@ const {
       <h2 class="list-title">応募情報</h2>
       <el-table
         v-loading="loading"
-        :data="filteredBids"
+        :data="sortedBids"
         stripe
         style="width: 100%"
         class="bid-table"
+        :default-sort="{ prop: 'applyDate', order: 'descending' }"
+        @sort-change="onSortChange"
       >
-        <el-table-column prop="companyName" label="会社名" min-width="120" />
-        <el-table-column label="応募日" min-width="100">
+        <el-table-column prop="companyName" label="会社名" sortable="custom">
           <template #default="{ row }">
-            {{ formatDate(row.applyDate) }}
+            <div v-if="isEditing(row.id, 'companyName')" class="cell-edit" @click.stop>
+              <el-input v-model="editingTextValue" size="small" placeholder="会社名" @click.stop />
+              <div class="cell-edit-actions">
+                <el-button type="primary" size="small" @click="confirmEditText">OK</el-button>
+              </div>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'companyName')">
+              {{ row.companyName ?? '—' }}
+            </div>
           </template>
         </el-table-column>
-        <el-table-column label="ステップ" width="100">
+        <el-table-column prop="applyDate" label="応募日" sortable="custom">
           <template #default="{ row }">
-            <el-tag size="small" :type="row.step === 'REJECT' ? 'danger' : row.step === 'APPLIED' ? 'success' : 'info'">
-              {{ row.step ?? '—' }}
-            </el-tag>
+            <div v-if="isEditing(row.id, 'applyDate')" class="cell-edit" @click.stop>
+              <el-date-picker
+                :model-value="row.applyDate ? formatDateForPicker(row.applyDate) : ''"
+                type="date"
+                value-format="YYYY-MM-DD"
+                size="small"
+                style="width: 100%"
+                placeholder="応募日"
+                @update:model-value="(v) => updateBidField(row.id, 'applyDate', v)"
+              />
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'applyDate')">
+              {{ formatDate(row.applyDate) }}
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状態" min-width="120">
+        <el-table-column prop="step" label="ステップ" sortable="custom">
           <template #default="{ row }">
-            <el-tag size="small">{{ row.status ?? '—' }}</el-tag>
+            <div v-if="isEditing(row.id, 'step')" class="cell-edit" @click.stop>
+              <el-select
+                :model-value="row.step"
+                size="small"
+                style="width: 100%"
+                @update:model-value="(v) => updateBidField(row.id, 'step', v)"
+              >
+                <el-option v-for="s in steps" :key="s" :label="s" :value="s" />
+              </el-select>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'step')">
+              <el-tag size="small" :type="row.step === 'REJECT' ? 'danger' : row.step === 'APPLIED' ? 'success' : 'info'">
+                {{ row.step ?? '—' }}
+              </el-tag>
+            </div>
           </template>
         </el-table-column>
-        <!-- 最終面接 -->
-        <el-table-column label="最終面接" min-width="100">
+        <el-table-column prop="status" label="状態" sortable="custom">
           <template #default="{ row }">
-            {{ formatDate(row.lastUpdated) }}
+            <div v-if="isEditing(row.id, 'status')" class="cell-edit" @click.stop>
+              <el-select
+                :model-value="row.status"
+                size="small"
+                style="width: 100%"
+                @update:model-value="(v) => updateBidField(row.id, 'status', v)"
+              >
+                <el-option v-for="s in statuses" :key="s" :label="s" :value="s" />
+              </el-select>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'status')">
+              <el-tag size="small">{{ row.status ?? '—' }}</el-tag>
+            </div>
           </template>
         </el-table-column>
-        <!-- 会社URL -->
-        <el-table-column label="会社URL" min-width="140">
+        <el-table-column prop="lastUpdated" label="最終面接" sortable="custom">
           <template #default="{ row }">
-            <el-link v-if="row.url" :href="row.url" target="_blank" type="primary">
-              リンク
-            </el-link>
-            <span v-else>—</span>
+            <div v-if="isEditing(row.id, 'lastUpdated')" class="cell-edit" @click.stop>
+              <el-date-picker
+                :model-value="row.lastUpdated ? formatDateForPicker(row.lastUpdated) : ''"
+                type="date"
+                value-format="YYYY-MM-DD"
+                size="small"
+                style="width: 100%"
+                placeholder="最終面接"
+                @update:model-value="(v) => updateBidField(row.id, 'lastUpdated', v)"
+              />
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'lastUpdated')">
+              {{ formatDate(row.lastUpdated) }}
+            </div>
           </template>
         </el-table-column>
-        <!-- 求人URL -->
-        <el-table-column label="求人URL" width="100">
+        <el-table-column label="会社URL">
           <template #default="{ row }">
-            <el-link v-if="row.jobLink" :href="row.jobLink" target="_blank" type="primary">
-              リンク
-            </el-link>
-            <span v-else>—</span>
+            <div v-if="isEditing(row.id, 'url')" class="cell-edit" @click.stop>
+              <el-input v-model="editingTextValue" size="small" placeholder="URL" @click.stop />
+              <div class="cell-edit-actions">
+                <el-button type="primary" size="small" @click="confirmEditText">OK</el-button>
+              </div>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'url')">
+              <el-link v-if="row.url" :href="row.url" target="_blank" type="primary" @click.stop>リンク</el-link>
+              <span v-else>—</span>
+            </div>
           </template>
         </el-table-column>
-        <!-- ポジション言語 -->
-        <el-table-column label="言語" width="100">
+        <el-table-column label="求人URL">
           <template #default="{ row }">
-            {{ row.lang ?? '—' }}
+            <div v-if="isEditing(row.id, 'jobLink')" class="cell-edit" @click.stop>
+              <el-input v-model="editingTextValue" size="small" placeholder="求人URL" @click.stop />
+              <div class="cell-edit-actions">
+                <el-button type="primary" size="small" @click="confirmEditText">OK</el-button>
+              </div>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'jobLink')">
+              <el-link v-if="row.jobLink" :href="row.jobLink" target="_blank" type="primary" @click.stop>リンク</el-link>
+              <span v-else>—</span>
+            </div>
           </template>
         </el-table-column>
-        <!-- プロセス担当者 -->
-        <el-table-column label="応募者" width="120">
+        <el-table-column prop="lang" label="言語" sortable="custom">
           <template #default="{ row }">
-            {{ row.bidder?.name ?? '—' }}
+            <div v-if="isEditing(row.id, 'lang')" class="cell-edit" @click.stop>
+              <el-select
+                :model-value="row.lang"
+                size="small"
+                style="width: 100%"
+                @update:model-value="(v) => updateBidField(row.id, 'lang', v)"
+              >
+                <el-option v-for="l in langs" :key="l" :label="l" :value="l" />
+              </el-select>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'lang')">
+              {{ row.lang ?? '—' }}
+            </div>
           </template>
         </el-table-column>
-        <!-- MTG担当者 -->
-        <el-table-column label="MTG担当者" width="120">
+        <el-table-column prop="bidderName" label="Bid" sortable="custom">
           <template #default="{ row }">
-            {{ row.caller?.name ?? '—' }}
+            <div v-if="isEditing(row.id, 'bidderId')" class="cell-edit" @click.stop>
+              <el-select
+                :model-value="row.bidderId ?? null"
+                size="small"
+                style="width: 100%"
+                clearable
+                @update:model-value="(v) => updateBidField(row.id, 'bidderId', v)"
+              >
+                <el-option v-for="b in bidders" :key="b.id" :label="b.name" :value="b.id" />
+              </el-select>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'bidderId')">
+              {{ row.bidder?.name ?? '—' }}
+            </div>
           </template>
         </el-table-column>
-        <!-- 経由エージェント -->
-        <el-table-column label="経由エージェント" min-width="120">
+        <el-table-column prop="callerName" label="Call" sortable="custom">
           <template #default="{ row }">
-            {{ row.agent?.companyName ?? '—' }}
+            <div v-if="isEditing(row.id, 'callerId')" class="cell-edit" @click.stop>
+              <el-select
+                :model-value="row.callerId ?? null"
+                size="small"
+                style="width: 100%"
+                clearable
+                @update:model-value="(v) => updateBidField(row.id, 'callerId', v)"
+              >
+                <el-option v-for="c in callers" :key="c.id" :label="c.name" :value="c.id" />
+              </el-select>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'callerId')">
+              {{ row.caller?.name ?? '—' }}
+            </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="220" fixed="right">
+        <el-table-column prop="agentName" label="Agent" sortable="custom">
+          <template #default="{ row }">
+            <div v-if="isEditing(row.id, 'agentId')" class="cell-edit" @click.stop>
+              <el-select
+                :model-value="row.agentId ?? null"
+                size="small"
+                style="width: 100%"
+                clearable
+                @update:model-value="(v) => updateBidField(row.id, 'agentId', v)"
+              >
+                <el-option v-for="a in activeAgents" :key="a.id" :label="a.companyName" :value="a.id" />
+              </el-select>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'agentId')">
+              {{ row.agent?.companyName ?? '—' }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="80" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="openDetailModal(row)">
               詳細
             </el-button>
-            <el-button type="primary" link size="small" @click="openEditModal(row)">
-              編集
-            </el-button>
-            <el-button type="danger" link size="small" @click="deleteBid(row.id)">
-              削除
-            </el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-empty v-if="!loading && !filteredBids.length" description="応募情報が見つかりません。" />
+      <el-empty v-if="!loading && !sortedBids.length" description="応募情報が見つかりません。" />
     </section>
   </div>
 </template>
@@ -298,5 +419,28 @@ const {
 }
 .bid-table {
   margin-bottom: 1rem;
+}
+.cell-clickable {
+  cursor: pointer;
+  min-height: 1.5em;
+}
+.cell-clickable:hover {
+  background: var(--el-fill-color-light);
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+.cell-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cell-edit .el-input,
+.cell-edit .el-select {
+  width: 100%;
+}
+.cell-edit-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 </style>
