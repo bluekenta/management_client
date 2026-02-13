@@ -10,6 +10,7 @@ const BID_FIELDS = `
   companyName
   url
   jobLink
+  step
   status
   applyDate
   lastUpdated

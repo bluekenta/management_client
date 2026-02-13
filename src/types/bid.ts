@@ -1,4 +1,5 @@
 export interface IBidConditionInput {
+  step?: string;
   status?: string;
   bidder?: string;
   caller?: string;

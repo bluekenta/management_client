@@ -18,7 +18,8 @@ const form = ref({
   companyName: "",
   url: "",
   jobLink: "",
-  status: "APPLIED",
+  step: "APPLIED",
+  status: "RESUME",
   lang: "",
   bidder: "",
   caller: "",
@@ -28,6 +29,7 @@ const form = ref({
 });
 const submitting = ref(false);
 const error = ref(null);
+const stepOptions = ref<string[]>([]);
 const statusOptions = ref<string[]>([]);
 const langOptions = ref<string[]>([]);
 const bidderOptions = ref<string[]>([]);
@@ -44,8 +46,8 @@ const submitLabel = computed(() =>
 
 async function loadOptions() {
   try {
-    statusOptions.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ??
-      []) as string[];
+    stepOptions.value = ((await gql(CONFIG.BID_STEPS_QUERY)).bidSteps ?? []) as string[];
+    statusOptions.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ?? []) as string[];
     langOptions.value = ((await gql(CONFIG.BID_LANGS_QUERY)).langs ?? []) as string[];
     bidderOptions.value = ((await gql(CONFIG.BID_BIDDERS_QUERY)).bidders ?? []) as string[];
     callerOptions.value = ((await gql(CONFIG.BID_CALLERS_QUERY)).callers ?? []) as string[];
@@ -62,7 +64,8 @@ function resetForm() {
     companyName: "",
     url: "",
     jobLink: "",
-    status: "APPLIED",
+    step: "APPLIED",
+    status: "RESUME",
     lang: "EN",
     bidder: "WEIMA",
     caller: "GALDINO",
@@ -84,7 +87,8 @@ function fillForm(b) {
     companyName: b.companyName ?? "",
     url: b.url ?? "",
     jobLink: b.jobLink ?? "",
-    status: b.status ?? "APPLIED",
+    step: b.step ?? "APPLIED",
+    status: b.status ?? "RESUME",
     lang: b.lang ?? "EN",
     bidder: b.bidder ?? "",
     caller: b.caller ?? "",
@@ -112,6 +116,7 @@ async function submit() {
           companyName: form.value.companyName.trim(),
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
+          step: form.value.step,
           status: form.value.status,
           lang: form.value.lang,
           bidder: form.value.bidder,
@@ -127,6 +132,7 @@ async function submit() {
           companyName: form.value.companyName.trim(),
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
+          step: form.value.step,
           status: form.value.status,
           lang: form.value.lang,
           bidder: form.value.bidder,
@@ -211,7 +217,7 @@ watch(
           style="width: 100%"
         />
       </el-form-item>
-      <el-form-item v-if="isEdit" label="最終更新">
+      <el-form-item v-if="isEdit" label="最終面接">
         <el-date-picker
           v-model="form.lastUpdated"
           type="date"
@@ -219,6 +225,17 @@ watch(
           placeholder="日付を選択"
           style="width: 100%"
         />
+      </el-form-item>
+
+      <el-form-item label="ステップ">
+        <el-select v-model="form.step" placeholder="ステップ" style="width: 100%">
+          <el-option
+            v-for="s in stepOptions"
+            :key="s"
+            :label="s"
+            :value="s"
+          />
+        </el-select>
       </el-form-item>
 
       <el-form-item label="状態">

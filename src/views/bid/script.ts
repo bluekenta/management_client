@@ -11,7 +11,8 @@ export function useBidView() {
   const editingBid = ref<TBid | null>(null);
   const showDetailModal = ref(false);
   const detailBid = ref<TBid | null>(null);
-  // '' means no filter (show all)
+  // '' means no filter (show all for that dimension)
+  const currentStep = ref<string>('');
   const currentStatus = ref<string>('');
   const currentBidder = ref<string>('');
   const currentCaller = ref<string>('');
@@ -20,7 +21,7 @@ export function useBidView() {
   const startDate = ref<string>('');
   const endDate = ref<string>('');
 
-  // statuses are fetched from the server (enum values)
+  const steps = ref<string[]>([]);
   const statuses = ref<string[]>([]);
   const bidders = ref<string[]>([]);
   const callers = ref<string[]>([]);
@@ -28,8 +29,8 @@ export function useBidView() {
 
   async function loadOptions(): Promise<void> {
     try {
-      statuses.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ??
-        []) as string[];
+      steps.value = ((await gql(CONFIG.BID_STEPS_QUERY)).bidSteps ?? []) as string[];
+      statuses.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ?? []) as string[];
       langs.value = ((await gql(CONFIG.BID_LANGS_QUERY)).langs ?? []) as string[];
       bidders.value = ((await gql(CONFIG.BID_BIDDERS_QUERY)).bidders ?? []) as string[];
       callers.value = ((await gql(CONFIG.BID_CALLERS_QUERY)).callers ?? []) as string[];
@@ -38,11 +39,7 @@ export function useBidView() {
     }
   }
 
-  const filteredBids = computed(() => {
-    // kept for backward compatibility in case someone reads filteredBids
-    if (!currentStatus.value) return bids.value;
-    return bids.value.filter((b) => (b.status ?? '') === currentStatus.value);
-  });
+  const filteredBids = computed(() => bids.value);
 
   function openCreateModal(): void {
     editingBid.value = null;
@@ -77,6 +74,7 @@ export function useBidView() {
 
   async function loadBids(): Promise<void> {
     await loadBidsByCondition({
+      step: currentStep.value || undefined,
       status: currentStatus.value || undefined,
       bidder: currentBidder.value || undefined,
       caller: currentCaller.value || undefined,
@@ -131,9 +129,10 @@ export function useBidView() {
   });
 
   watch(
-    [currentStatus, currentBidder, currentCaller, currentLang, companyNameSearch, startDate, endDate],
+    [currentStep, currentStatus, currentBidder, currentCaller, currentLang, companyNameSearch, startDate, endDate],
     () => {
       loadBidsByCondition({
+        step: currentStep.value || undefined,
         status: currentStatus.value || undefined,
         bidder: currentBidder.value || undefined,
         caller: currentCaller.value || undefined,
@@ -149,7 +148,9 @@ export function useBidView() {
   return {
     bids,
     filteredBids,
+    steps,
     statuses,
+    currentStep,
     currentStatus,
     bidders,
     currentBidder,

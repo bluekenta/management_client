@@ -3,6 +3,7 @@ export interface TBid {
   companyName: string;
   url?: string | null;
   jobLink?: string | null;
+  step?: string | null;
   status?: string | null;
   applyDate: string;
   lastUpdated?: string | null;

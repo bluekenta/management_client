@@ -5,7 +5,9 @@ import { useBidView } from './script';
 
 const {
   filteredBids,
+  steps,
   statuses,
+  currentStep,
   currentStatus,
   bidders,
   currentBidder,
@@ -70,7 +72,23 @@ const {
         class="filter-input"
       />
 
-      <!-- 応募ステータスリスト -->
+      <!-- ステップ（wait / applied / reject） -->
+      <el-select
+        v-model="currentStep"
+        placeholder="ステップで絞り込み"
+        clearable
+        class="filter-select"
+      >
+        <el-option label="すべて（不採用を除く）" value="" />
+        <el-option
+          v-for="s in steps"
+          :key="s"
+          :label="s"
+          :value="s"
+        />
+      </el-select>
+
+      <!-- 状態（resume, Intro, firsttech, ...） -->
       <el-select
         v-model="currentStatus"
         placeholder="状態で絞り込み"
@@ -169,14 +187,20 @@ const {
             {{ formatDate(row.applyDate) }}
           </template>
         </el-table-column>
-        <!-- 応募状態 -->
-        <el-table-column prop="status" label="応募状態" min-width="120">
+        <el-table-column label="ステップ" width="100">
+          <template #default="{ row }">
+            <el-tag size="small" :type="row.step === 'REJECT' ? 'danger' : row.step === 'APPLIED' ? 'success' : 'info'">
+              {{ row.step ?? '—' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状態" min-width="120">
           <template #default="{ row }">
             <el-tag size="small">{{ row.status ?? '—' }}</el-tag>
           </template>
         </el-table-column>
-        <!-- 最終更新 -->
-        <el-table-column label="最終更新" min-width="100">
+        <!-- 最終面接 -->
+        <el-table-column label="最終面接" min-width="100">
           <template #default="{ row }">
             {{ formatDate(row.lastUpdated) }}
           </template>

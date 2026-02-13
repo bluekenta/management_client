@@ -43,7 +43,7 @@ async function save() {
   try {
     await gql(BID.UPDATE_BID_MUTATION, {
       id: props.bid.id,
-      input: { detail: detailContent.value || undefined },
+      input: { detail: detailContent.value ?? '' },
     });
     emit('updated');
     isEditing.value = false;
