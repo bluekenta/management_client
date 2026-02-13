@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import NewAgentModal from '@/components/NewAgentModal.vue';
 import { useAgentView } from './script';
+import type { IAgent } from '@/types/agent';
 
 const {
   agents,
@@ -33,7 +34,7 @@ const {
 
     <NewAgentModal
       v-model:open="showAgentModal"
-      :agent="editingAgent ?? undefined"
+      :agent="editingAgent as unknown as IAgent | null"
       @created="loadAgents"
       @updated="loadAgents"
       @close="onModalClose"
