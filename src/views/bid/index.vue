@@ -40,6 +40,12 @@ const {
   formatDate,
   formatDateForPicker,
 } = useBidView();
+
+function isWebsiteUrl(value: string | null | undefined): boolean {
+  if (!value || typeof value !== 'string') return false;
+  const trimmed = value.trim();
+  return trimmed.startsWith('http://') || trimmed.startsWith('https://');
+}
 </script>
 
 <template>
@@ -284,7 +290,8 @@ const {
               </div>
             </div>
             <div v-else class="cell-clickable" @click="startEdit(row, 'url')">
-              <el-link v-if="row.url" :href="row.url" target="_blank" type="primary" @click.stop>リンク</el-link>
+              <el-link v-if="isWebsiteUrl(row.url)" :href="row.url" target="_blank" type="primary" @click.stop>リンク</el-link>
+              <span v-else-if="row.url">{{ row.url }}</span>
               <span v-else>—</span>
             </div>
           </template>
@@ -298,7 +305,8 @@ const {
               </div>
             </div>
             <div v-else class="cell-clickable" @click="startEdit(row, 'jobLink')">
-              <el-link v-if="row.jobLink" :href="row.jobLink" target="_blank" type="primary" @click.stop>リンク</el-link>
+              <el-link v-if="isWebsiteUrl(row.jobLink)" :href="row.jobLink" target="_blank" type="primary" @click.stop>リンク</el-link>
+              <span v-else-if="row.jobLink">{{ row.jobLink }}</span>
               <span v-else>—</span>
             </div>
           </template>
