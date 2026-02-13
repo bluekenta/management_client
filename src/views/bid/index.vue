@@ -92,7 +92,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
         clearable
         class="filter-select"
       >
-        <el-option label="すべて（不採用を除く）" value="" />
+        <el-option label="すべて" value="" />
         <el-option
           v-for="s in steps"
           :key="s"
