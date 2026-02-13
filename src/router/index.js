@@ -5,6 +5,7 @@ import AgentView from '@/views/agent/index.vue';
 import CallerView from '@/views/caller/index.vue';
 import BidderView from '@/views/bidder/index.vue';
 import LoginView from '@/views/login/index.vue';
+import ChatView from '@/views/chat/index.vue';
 import { useAuth } from '@/composables/useAuth';
 
 const router = createRouter({
@@ -12,6 +13,7 @@ const router = createRouter({
   routes: [
     { path: '/login', name: 'login', component: LoginView, meta: { public: true } },
     { path: '/', name: 'home', component: HomeView },
+    { path: '/chat', name: 'chat', component: ChatView },
     { path: '/bid', name: 'bid', component: BidView },
     { path: '/agent', name: 'agent', component: AgentView },
     { path: '/caller', name: 'caller', component: CallerView },

@@ -16,6 +16,7 @@ const activeIndex = computed(() => {
   if (p === '/agent') return '/agent';
   if (p === '/caller') return '/caller';
   if (p === '/bidder') return '/bidder';
+  if (p === '/chat') return '/chat';
   return '/';
 });
 
@@ -36,6 +37,7 @@ function logout() {
         class="nav-menu"
       >
         <el-menu-item index="/">ホーム</el-menu-item>
+        <el-menu-item index="/chat">技術Q&A</el-menu-item>
         <el-menu-item index="/bid">応募管理</el-menu-item>
         <el-menu-item index="/agent">エージェント管理</el-menu-item>
         <el-menu-item index="/bidder">応募者管理</el-menu-item>
