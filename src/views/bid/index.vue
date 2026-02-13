@@ -13,6 +13,8 @@ const {
   langs,
   currentLang,
   companyNameSearch,
+  startDate,
+  endDate,
   loading,
   error,
   showBidModal,
@@ -35,6 +37,26 @@ const {
     <el-alert v-if="error" type="error" :title="error" show-icon class="error-alert" />
 
     <div class="toolbar">
+      <!-- 応募日範囲（未指定時は直近1週間。終了日は開始日より前を選択不可） -->
+      <el-date-picker
+        v-model="startDate"
+        type="date"
+        value-format="YYYY-MM-DD"
+        placeholder="開始日"
+        clearable
+        class="filter-date"
+        :disabled-date="endDate ? (d) => new Date(d) > new Date(endDate) : undefined"
+      />
+      <el-date-picker
+        v-model="endDate"
+        type="date"
+        value-format="YYYY-MM-DD"
+        placeholder="終了日"
+        clearable
+        class="filter-date"
+        :disabled-date="startDate ? (d) => new Date(d) < new Date(startDate) : undefined"
+      />
+
       <!-- 会社名検索 -->
       <el-input
         v-model="companyNameSearch"
@@ -217,6 +239,9 @@ const {
 }
 .filter-input {
   width: 200px;
+}
+.filter-date {
+  width: 140px;
 }
 .filter-select {
   width: 200px;

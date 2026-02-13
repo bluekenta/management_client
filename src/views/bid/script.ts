@@ -15,6 +15,8 @@ export function useBidView() {
   const currentCaller = ref<string>('');
   const currentLang = ref<string>('');
   const companyNameSearch = ref<string>('');
+  const startDate = ref<string>('');
+  const endDate = ref<string>('');
 
   // statuses are fetched from the server (enum values)
   const statuses = ref<string[]>([]);
@@ -61,6 +63,8 @@ export function useBidView() {
       caller: currentCaller.value || undefined,
       lang: currentLang.value || undefined,
       companyName: companyNameSearch.value.trim() || undefined,
+      startDate: startDate.value.trim() || undefined,
+      endDate: endDate.value.trim() || undefined,
     });
   }
 
@@ -101,16 +105,23 @@ export function useBidView() {
     }
   }
 
+  watch([startDate, endDate], () => {
+    const s = (startDate.value ?? '').toString().trim();
+    const e = (endDate.value ?? '').toString().trim();
+    if (s && e && s > e) endDate.value = '';
+  });
+
   watch(
-    [currentStatus, currentBidder, currentCaller, currentLang, companyNameSearch],
+    [currentStatus, currentBidder, currentCaller, currentLang, companyNameSearch, startDate, endDate],
     () => {
-      // Omit enum fields when empty ("" is invalid for GraphQL enums). No status = backend returns only non-failed bids by default.
       loadBidsByCondition({
         status: currentStatus.value || undefined,
         bidder: currentBidder.value || undefined,
         caller: currentCaller.value || undefined,
         lang: currentLang.value || undefined,
         companyName: companyNameSearch.value.trim() || undefined,
+        startDate: (startDate.value ?? '').toString().trim() || undefined,
+        endDate: (endDate.value ?? '').toString().trim() || undefined,
       });
     },
     { immediate: true },
@@ -128,6 +139,8 @@ export function useBidView() {
     langs,
     currentLang,
     companyNameSearch,
+    startDate,
+    endDate,
     loading,
     error,
     showBidModal,
