@@ -107,12 +107,14 @@ export function useBidView() {
     editingCell.value = null;
   }
 
+  const NULLABLE_FIELDS = ['lastUpdated', 'bidderId', 'callerId', 'agentId'];
+
   async function updateBidField(bidId: number, field: string, value: string | number | null): Promise<void> {
     error.value = null;
     try {
       const input: Record<string, unknown> = {};
-      if (field === 'bidderId' || field === 'callerId' || field === 'agentId') {
-        input[field] = value ?? undefined;
+      if (NULLABLE_FIELDS.includes(field) && (value === null || value === '')) {
+        input[field] = null;
       } else {
         input[field] = value ?? undefined;
       }
