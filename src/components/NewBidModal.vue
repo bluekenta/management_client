@@ -18,14 +18,14 @@ const form = ref({
   companyName: "",
   url: "",
   jobLink: "",
-  step: "APPLIED",
-  status: "RESUME",
+  step: "",
+  status: "",
   lang: "",
   bidderId: null as number | null,
   callerId: null as number | null,
   agentId: null as number | null,
   applyDate: todayStr(),
-  lastUpdated: todayStr(),
+  lastUpdated: "",
 });
 const submitting = ref(false);
 const error = ref(null);
@@ -64,20 +64,20 @@ function resetForm() {
     companyName: "",
     url: "",
     jobLink: "",
-    step: "APPLIED",
-    status: "RESUME",
-    lang: "EN",
+    step: "",
+    status: "",
+    lang: "",
     bidderId: null,
     callerId: null,
     agentId: null,
     applyDate: todayStr(),
-    lastUpdated: todayStr(),
+    lastUpdated: "",
   };
   error.value = null;
 }
 
 function parseDateOnly(isoOrDate) {
-  if (!isoOrDate) return todayStr();
+  if (!isoOrDate) return "";
   const d = new Date(isoOrDate);
   return d.toISOString().slice(0, 10);
 }
@@ -87,14 +87,14 @@ function fillForm(b) {
     companyName: b.companyName ?? "",
     url: b.url ?? "",
     jobLink: b.jobLink ?? "",
-    step: b.step ?? "APPLIED",
-    status: b.status ?? "RESUME",
-    lang: b.lang ?? "EN",
+    step: b.step ?? "",
+    status: b.status ?? "",
+    lang: b.lang ?? "",
     bidderId: b.bidderId ?? null,
     callerId: b.callerId ?? null,
     agentId: b.agentId ?? null,
     applyDate: parseDateOnly(b.applyDate),
-    lastUpdated: todayStr(),
+    lastUpdated: parseDateOnly(b.lastUpdated),
   };
 }
 
@@ -116,13 +116,13 @@ async function submit() {
           companyName: form.value.companyName.trim(),
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
-          step: form.value.step,
-          status: form.value.status,
-          lang: form.value.lang,
+          step: form.value.step || undefined,
+          status: form.value.status || undefined,
+          lang: form.value.lang || undefined,
           bidderId: form.value.bidderId || undefined,
           callerId: form.value.callerId || undefined,
           agentId: form.value.agentId || undefined,
-          lastUpdated: form.value.lastUpdated || todayStr(),
+          lastUpdated: form.value.lastUpdated || undefined,
         },
       });
       emit("updated");
@@ -132,9 +132,9 @@ async function submit() {
           companyName: form.value.companyName.trim(),
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
-          step: form.value.step,
-          status: form.value.status,
-          lang: form.value.lang,
+          step: form.value.step || undefined,
+          status: form.value.status || undefined,
+          lang: form.value.lang || undefined,
           bidderId: form.value.bidderId || undefined,
           callerId: form.value.callerId || undefined,
           agentId: form.value.agentId || undefined,
