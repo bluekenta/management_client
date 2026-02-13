@@ -14,17 +14,45 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Today's date in GMT+9 as YYYY-MM-DD (for applyDate default when creating bid). */
+function todayStrGMT9() {
+  const d = new Date();
+  const gmt9 = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  return gmt9.toISOString().slice(0, 10);
+}
+
+const DEFAULT_BIDDER_NAME = "WEIMA";
+const DEFAULT_CALLER_NAME = "GALDINO";
+
+function getCreateDefaults() {
+  const weima = bidderOptions.value.find((b) => b.name === DEFAULT_BIDDER_NAME);
+  const galdino = callerOptions.value.find((c) => c.name === DEFAULT_CALLER_NAME);
+  return {
+    companyName: "",
+    url: "",
+    jobLink: "",
+    step: "APPLIED",
+    status: "RESUME",
+    lang: "EN",
+    bidderId: (weima?.id ?? null) as number | null,
+    callerId: (galdino?.id ?? null) as number | null,
+    agentId: null as number | null,
+    applyDate: todayStrGMT9(),
+    lastUpdated: "",
+  };
+}
+
 const form = ref({
   companyName: "",
   url: "",
   jobLink: "",
-  step: "",
-  status: "",
-  lang: "",
+  step: "APPLIED",
+  status: "RESUME",
+  lang: "EN",
   bidderId: null as number | null,
   callerId: null as number | null,
   agentId: null as number | null,
-  applyDate: todayStr(),
+  applyDate: todayStrGMT9(),
   lastUpdated: "",
 });
 const submitting = ref(false);
@@ -60,19 +88,7 @@ async function loadOptions() {
 onMounted(loadOptions);
 
 function resetForm() {
-  form.value = {
-    companyName: "",
-    url: "",
-    jobLink: "",
-    step: "",
-    status: "",
-    lang: "",
-    bidderId: null,
-    callerId: null,
-    agentId: null,
-    applyDate: todayStr(),
-    lastUpdated: "",
-  };
+  form.value = getCreateDefaults();
   error.value = null;
 }
 
@@ -138,7 +154,7 @@ async function submit() {
           bidderId: form.value.bidderId || undefined,
           callerId: form.value.callerId || undefined,
           agentId: form.value.agentId || undefined,
-          applyDate: form.value.applyDate || todayStr(),
+          applyDate: form.value.applyDate || todayStrGMT9(),
         },
       });
       emit("created");
