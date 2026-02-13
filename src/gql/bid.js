@@ -5,6 +5,20 @@ const BID_AGENT_FRAGMENT = `
   }
 `;
 
+const BID_BIDDER_FRAGMENT = `
+  bidder {
+    id
+    name
+  }
+`;
+
+const BID_CALLER_FRAGMENT = `
+  caller {
+    id
+    name
+  }
+`;
+
 const BID_FIELDS = `
   id
   companyName
@@ -15,11 +29,13 @@ const BID_FIELDS = `
   applyDate
   lastUpdated
   lang
-  bidder
-  caller
+  bidderId
+  callerId
   agentId
   detail
   ${BID_AGENT_FRAGMENT}
+  ${BID_BIDDER_FRAGMENT}
+  ${BID_CALLER_FRAGMENT}
 `;
 
 export const BIDS_QUERY = `

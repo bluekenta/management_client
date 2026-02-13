@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from "vue";
-import { gql, BID, AGENT, CONFIG } from "@/gql";
+import { gql, BID, AGENT, CONFIG, CALLER, BIDDER } from "@/gql";
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -21,8 +21,8 @@ const form = ref({
   step: "APPLIED",
   status: "RESUME",
   lang: "",
-  bidder: "",
-  caller: "",
+  bidderId: null as number | null,
+  callerId: null as number | null,
   agentId: null as number | null,
   applyDate: todayStr(),
   lastUpdated: todayStr(),
@@ -32,8 +32,8 @@ const error = ref(null);
 const stepOptions = ref<string[]>([]);
 const statusOptions = ref<string[]>([]);
 const langOptions = ref<string[]>([]);
-const bidderOptions = ref<string[]>([]);
-const callerOptions = ref<string[]>([]);
+const bidderOptions = ref<{ id: number; name: string }[]>([]);
+const callerOptions = ref<{ id: number; name: string }[]>([]);
 const activeAgents = ref<{ id: number; companyName: string }[]>([]);
 
 const isEdit = computed(
@@ -49,8 +49,8 @@ async function loadOptions() {
     stepOptions.value = ((await gql(CONFIG.BID_STEPS_QUERY)).bidSteps ?? []) as string[];
     statusOptions.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ?? []) as string[];
     langOptions.value = ((await gql(CONFIG.BID_LANGS_QUERY)).langs ?? []) as string[];
-    bidderOptions.value = ((await gql(CONFIG.BID_BIDDERS_QUERY)).bidders ?? []) as string[];
-    callerOptions.value = ((await gql(CONFIG.BID_CALLERS_QUERY)).callers ?? []) as string[];
+    bidderOptions.value = ((await gql(BIDDER.BIDDERS_QUERY)).bidders ?? []) as { id: number; name: string }[];
+    callerOptions.value = ((await gql(CALLER.CALLERS_QUERY)).callers ?? []) as { id: number; name: string }[];
     activeAgents.value = ((await gql(AGENT.ACTIVE_AGENTS_QUERY)).activeAgents ?? []) as { id: number; companyName: string }[];
   } catch (e) {
     console.error("Failed to load options:", e);
@@ -67,8 +67,8 @@ function resetForm() {
     step: "APPLIED",
     status: "RESUME",
     lang: "EN",
-    bidder: "WEIMA",
-    caller: "GALDINO",
+    bidderId: null,
+    callerId: null,
     agentId: null,
     applyDate: todayStr(),
     lastUpdated: todayStr(),
@@ -90,8 +90,8 @@ function fillForm(b) {
     step: b.step ?? "APPLIED",
     status: b.status ?? "RESUME",
     lang: b.lang ?? "EN",
-    bidder: b.bidder ?? "",
-    caller: b.caller ?? "",
+    bidderId: b.bidderId ?? null,
+    callerId: b.callerId ?? null,
     agentId: b.agentId ?? null,
     applyDate: parseDateOnly(b.applyDate),
     lastUpdated: todayStr(),
@@ -119,8 +119,8 @@ async function submit() {
           step: form.value.step,
           status: form.value.status,
           lang: form.value.lang,
-          bidder: form.value.bidder,
-          caller: form.value.caller,
+          bidderId: form.value.bidderId || undefined,
+          callerId: form.value.callerId || undefined,
           agentId: form.value.agentId || undefined,
           lastUpdated: form.value.lastUpdated || todayStr(),
         },
@@ -135,8 +135,8 @@ async function submit() {
           step: form.value.step,
           status: form.value.status,
           lang: form.value.lang,
-          bidder: form.value.bidder,
-          caller: form.value.caller,
+          bidderId: form.value.bidderId || undefined,
+          callerId: form.value.callerId || undefined,
           agentId: form.value.agentId || undefined,
           applyDate: form.value.applyDate || todayStr(),
         },
@@ -257,30 +257,32 @@ watch(
 
       <el-form-item label="応募者">
         <el-select
-          v-model="form.bidder"
+          v-model="form.bidderId"
           placeholder="応募者"
+          clearable
           style="width: 100%"
         >
           <el-option
             v-for="b in bidderOptions"
-            :key="b"
-            :label="b"
-            :value="b"
+            :key="b.id"
+            :label="b.name"
+            :value="b.id"
           />
         </el-select>
       </el-form-item>
 
       <el-form-item label="MTG担当者">
         <el-select
-          v-model="form.caller"
+          v-model="form.callerId"
           placeholder="MTG担当者"
+          clearable
           style="width: 100%"
         >
           <el-option
             v-for="c in callerOptions"
-            :key="c"
-            :label="c"
-            :value="c"
+            :key="c.id"
+            :label="c.name"
+            :value="c.id"
           />
         </el-select>
       </el-form-item>

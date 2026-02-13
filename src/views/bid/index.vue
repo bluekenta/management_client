@@ -10,9 +10,9 @@ const {
   currentStep,
   currentStatus,
   bidders,
-  currentBidder,
+  currentBidderId,
   callers,
-  currentCaller,
+  currentCallerId,
   langs,
   currentLang,
   companyNameSearch,
@@ -106,33 +106,33 @@ const {
 
       <!-- プロセス担当者リスト -->
       <el-select
-        v-model="currentBidder"
+        v-model="currentBidderId"
         placeholder="プロセス担当者で絞り込み"
         clearable
         class="filter-select"
       >
-        <el-option label="すべて" value="" />
+        <el-option label="すべて" :value="'' as any" />
         <el-option
           v-for="b in bidders"
-          :key="b"
-          :label="b"
-          :value="b"
+          :key="b.id"
+          :label="b.name"
+          :value="b.id"
         />
       </el-select>
 
       <!-- MTG担当者リスト -->
       <el-select
-        v-model="currentCaller"
+        v-model="currentCallerId"
         placeholder="MTG担当者で絞り込み"
         clearable
         class="filter-select"
       >
-        <el-option label="すべて" value="" />
+        <el-option label="すべて" :value="'' as any" />
         <el-option
           v-for="c in callers"
-          :key="c"
-          :label="c"
-          :value="c"
+          :key="c.id"
+          :label="c.name"
+          :value="c.id"
         />
       </el-select>
 
@@ -232,13 +232,13 @@ const {
         <!-- プロセス担当者 -->
         <el-table-column label="応募者" width="120">
           <template #default="{ row }">
-            {{ row.bidder ?? '—' }}
+            {{ row.bidder?.name ?? '—' }}
           </template>
         </el-table-column>
         <!-- MTG担当者 -->
         <el-table-column label="MTG担当者" width="120">
           <template #default="{ row }">
-            {{ row.caller ?? '—' }}
+            {{ row.caller?.name ?? '—' }}
           </template>
         </el-table-column>
         <!-- 経由エージェント -->

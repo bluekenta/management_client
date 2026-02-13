@@ -8,8 +8,10 @@ export interface IAgent {
   workStartDate?: string | null;
   manager?: string | null;
   language?: string | null;
-  bidder?: string | null;
-  caller?: string | null;
+  bidderId?: number | null;
+  callerId?: number | null;
+  bidder?: { id: number; name: string } | null;
+  caller?: { id: number; name: string } | null;
   createdAt?: string;
   updatedAt?: string;
 }

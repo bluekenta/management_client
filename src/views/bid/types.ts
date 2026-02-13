@@ -7,8 +7,10 @@ export interface TBid {
   status?: string | null;
   applyDate: string;
   lastUpdated?: string | null;
-  bidder?: string | null;
-  caller?: string | null;
+  bidderId?: number | null;
+  callerId?: number | null;
+  bidder?: { id: number; name: string } | null;
+  caller?: { id: number; name: string } | null;
   lang?: string | null;
   agentId?: number | null;
   agent?: { id: number; companyName: string } | null;

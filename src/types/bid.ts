@@ -1,8 +1,8 @@
 export interface IBidConditionInput {
   step?: string;
   status?: string;
-  bidder?: string;
-  caller?: string;
+  bidderId?: number;
+  callerId?: number;
   lang?: string;
   companyName?: string;
   /** YYYY-MM-DD; with endDate defines range. Empty = use default (last 7 days). */

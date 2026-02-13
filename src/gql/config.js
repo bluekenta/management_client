@@ -15,15 +15,3 @@ export const BID_LANGS_QUERY = `
     langs
   }
 `;
-
-export const BID_CALLERS_QUERY = `
-  query BidCallers {
-    callers
-  }
-`;
-
-export const BID_BIDDERS_QUERY = `
-  query BidBidders {
-    bidders
-  }
-`;

@@ -71,8 +71,12 @@ const {
         </el-table-column>
         <el-table-column prop="manager" label="担当者" min-width="100" />
         <el-table-column prop="language" label="言語" width="80" />
-        <el-table-column prop="bidder" label="Bidder" width="100" />
-        <el-table-column prop="caller" label="Caller" width="100" />
+        <el-table-column label="Bidder" width="100">
+          <template #default="{ row }">{{ row.bidder?.name ?? '—' }}</template>
+        </el-table-column>
+        <el-table-column label="Caller" width="100">
+          <template #default="{ row }">{{ row.caller?.name ?? '—' }}</template>
+        </el-table-column>
         <el-table-column label="操作" width="160" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="openEditModal(row)">

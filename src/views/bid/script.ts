@@ -1,5 +1,5 @@
 import { ref, onMounted, computed, watch } from 'vue';
-import { gql, BID, CONFIG } from '@/gql';
+import { gql, BID, CONFIG, CALLER, BIDDER } from '@/gql';
 import type { TBid } from './types.ts';
 import type { IBidConditionInput } from '@/types/bid.ts';
 
@@ -14,8 +14,8 @@ export function useBidView() {
   // '' means no filter (show all for that dimension)
   const currentStep = ref<string>('');
   const currentStatus = ref<string>('');
-  const currentBidder = ref<string>('');
-  const currentCaller = ref<string>('');
+  const currentBidderId = ref<number | ''>('');
+  const currentCallerId = ref<number | ''>('');
   const currentLang = ref<string>('');
   const companyNameSearch = ref<string>('');
   const startDate = ref<string>('');
@@ -23,8 +23,8 @@ export function useBidView() {
 
   const steps = ref<string[]>([]);
   const statuses = ref<string[]>([]);
-  const bidders = ref<string[]>([]);
-  const callers = ref<string[]>([]);
+  const bidders = ref<{ id: number; name: string }[]>([]);
+  const callers = ref<{ id: number; name: string }[]>([]);
   const langs = ref<string[]>([]);
 
   async function loadOptions(): Promise<void> {
@@ -32,8 +32,8 @@ export function useBidView() {
       steps.value = ((await gql(CONFIG.BID_STEPS_QUERY)).bidSteps ?? []) as string[];
       statuses.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ?? []) as string[];
       langs.value = ((await gql(CONFIG.BID_LANGS_QUERY)).langs ?? []) as string[];
-      bidders.value = ((await gql(CONFIG.BID_BIDDERS_QUERY)).bidders ?? []) as string[];
-      callers.value = ((await gql(CONFIG.BID_CALLERS_QUERY)).callers ?? []) as string[];
+      bidders.value = ((await gql(BIDDER.BIDDERS_QUERY)).bidders ?? []) as { id: number; name: string }[];
+      callers.value = ((await gql(CALLER.CALLERS_QUERY)).callers ?? []) as { id: number; name: string }[];
     } catch (e) {
       console.error("Failed to load options:", e);
     }
@@ -76,8 +76,8 @@ export function useBidView() {
     await loadBidsByCondition({
       step: currentStep.value || undefined,
       status: currentStatus.value || undefined,
-      bidder: currentBidder.value || undefined,
-      caller: currentCaller.value || undefined,
+      bidderId: currentBidderId.value === '' ? undefined : currentBidderId.value,
+      callerId: currentCallerId.value === '' ? undefined : currentCallerId.value,
       lang: currentLang.value || undefined,
       companyName: companyNameSearch.value.trim() || undefined,
       startDate: startDate.value.trim() || undefined,
@@ -129,13 +129,13 @@ export function useBidView() {
   });
 
   watch(
-    [currentStep, currentStatus, currentBidder, currentCaller, currentLang, companyNameSearch, startDate, endDate],
+    [currentStep, currentStatus, currentBidderId, currentCallerId, currentLang, companyNameSearch, startDate, endDate],
     () => {
       loadBidsByCondition({
         step: currentStep.value || undefined,
         status: currentStatus.value || undefined,
-        bidder: currentBidder.value || undefined,
-        caller: currentCaller.value || undefined,
+        bidderId: currentBidderId.value === '' ? undefined : currentBidderId.value,
+        callerId: currentCallerId.value === '' ? undefined : currentCallerId.value,
         lang: currentLang.value || undefined,
         companyName: companyNameSearch.value.trim() || undefined,
         startDate: (startDate.value ?? '').toString().trim() || undefined,
@@ -153,9 +153,9 @@ export function useBidView() {
     currentStep,
     currentStatus,
     bidders,
-    currentBidder,
+    currentBidderId,
     callers,
-    currentCaller,
+    currentCallerId,
     langs,
     currentLang,
     companyNameSearch,

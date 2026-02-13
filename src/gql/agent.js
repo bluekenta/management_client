@@ -8,8 +8,10 @@ export const AGENTS_QUERY = `
       workStartDate
       manager
       language
-      bidder
-      caller
+      bidderId
+      callerId
+      bidder { id name }
+      caller { id name }
       createdAt
       updatedAt
     }
@@ -35,8 +37,10 @@ export const AGENT_QUERY = `
       workStartDate
       manager
       language
-      bidder
-      caller
+      bidderId
+      callerId
+      bidder { id name }
+      caller { id name }
       createdAt
       updatedAt
     }
@@ -53,8 +57,10 @@ export const CREATE_AGENT_MUTATION = `
       workStartDate
       manager
       language
-      bidder
-      caller
+      bidderId
+      callerId
+      bidder { id name }
+      caller { id name }
       createdAt
       updatedAt
     }
@@ -71,8 +77,10 @@ export const UPDATE_AGENT_MUTATION = `
       workStartDate
       manager
       language
-      bidder
-      caller
+      bidderId
+      callerId
+      bidder { id name }
+      caller { id name }
       createdAt
       updatedAt
     }

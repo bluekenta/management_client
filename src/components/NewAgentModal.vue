@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from "vue";
-import { gql, AGENT, CONFIG } from "@/gql";
+import { gql, AGENT, CONFIG, CALLER, BIDDER } from "@/gql";
 import type { IAgent } from "@/types/agent";
 
 const props = defineProps<{
@@ -26,8 +26,8 @@ const form = ref({
   workStartDate: todayStr(),
   manager: "",
   language: "",
-  bidder: "",
-  caller: "",
+  bidderId: null as number | null,
+  callerId: null as number | null,
 });
 const statusOptions = [
   { label: "有効", value: "ACTIVE" },
@@ -36,8 +36,8 @@ const statusOptions = [
 const submitting = ref(false);
 const error = ref<string | null>(null);
 const langOptions = ref<string[]>([]);
-const bidderOptions = ref<string[]>([]);
-const callerOptions = ref<string[]>([]);
+const bidderOptions = ref<{ id: number; name: string }[]>([]);
+const callerOptions = ref<{ id: number; name: string }[]>([]);
 
 const isEdit = computed(
   () => props.agent != null && typeof props.agent.id === "number",
@@ -52,8 +52,8 @@ const submitLabel = computed(() =>
 async function loadOptions() {
   try {
     langOptions.value = ((await gql(CONFIG.BID_LANGS_QUERY)).langs ?? []) as string[];
-    bidderOptions.value = ((await gql(CONFIG.BID_BIDDERS_QUERY)).bidders ?? []) as string[];
-    callerOptions.value = ((await gql(CONFIG.BID_CALLERS_QUERY)).callers ?? []) as string[];
+    bidderOptions.value = ((await gql(BIDDER.BIDDERS_QUERY)).bidders ?? []) as { id: number; name: string }[];
+    callerOptions.value = ((await gql(CALLER.CALLERS_QUERY)).callers ?? []) as { id: number; name: string }[];
   } catch (e) {
     console.error("Failed to load options:", e);
   }
@@ -69,8 +69,8 @@ function resetForm() {
     workStartDate: todayStr(),
     manager: "",
     language: "",
-    bidder: "",
-    caller: "",
+    bidderId: null,
+    callerId: null,
   };
   error.value = null;
 }
@@ -88,8 +88,8 @@ function fillForm(a: IAgent) {
     workStartDate: parseDateOnly(a.workStartDate),
     manager: a.manager ?? "",
     language: a.language ?? "",
-    bidder: a.bidder ?? "",
-    caller: a.caller ?? "",
+    bidderId: a.bidderId ?? null,
+    callerId: a.callerId ?? null,
   };
 }
 
@@ -114,8 +114,8 @@ async function submit() {
           workStartDate: form.value.workStartDate || undefined,
           manager: form.value.manager.trim() || undefined,
           language: form.value.language || undefined,
-          bidder: form.value.bidder || undefined,
-          caller: form.value.caller || undefined,
+          bidderId: form.value.bidderId || undefined,
+          callerId: form.value.callerId || undefined,
         },
       });
       emit("updated");
@@ -128,8 +128,8 @@ async function submit() {
           workStartDate: form.value.workStartDate || undefined,
           manager: form.value.manager.trim() || undefined,
           language: form.value.language || undefined,
-          bidder: form.value.bidder || undefined,
-          caller: form.value.caller || undefined,
+          bidderId: form.value.bidderId || undefined,
+          callerId: form.value.callerId || undefined,
         },
       });
       emit("created");
@@ -214,22 +214,22 @@ watch(
         </el-select>
       </el-form-item>
       <el-form-item label="Bidder">
-        <el-select v-model="form.bidder" placeholder="Bidder" style="width: 100%">
+        <el-select v-model="form.bidderId" placeholder="Bidder" clearable style="width: 100%">
           <el-option
             v-for="b in bidderOptions"
-            :key="b"
-            :label="b"
-            :value="b"
+            :key="b.id"
+            :label="b.name"
+            :value="b.id"
           />
         </el-select>
       </el-form-item>
       <el-form-item label="Caller">
-        <el-select v-model="form.caller" placeholder="Caller" style="width: 100%">
+        <el-select v-model="form.callerId" placeholder="Caller" clearable style="width: 100%">
           <el-option
             v-for="c in callerOptions"
-            :key="c"
-            :label="c"
-            :value="c"
+            :key="c.id"
+            :label="c.name"
+            :value="c.id"
           />
         </el-select>
       </el-form-item>
