@@ -9,6 +9,8 @@ export function useBidView() {
   const error = ref<string | null>(null);
   const showBidModal = ref(false);
   const editingBid = ref<TBid | null>(null);
+  const showDetailModal = ref(false);
+  const detailBid = ref<TBid | null>(null);
   // '' means no filter (show all)
   const currentStatus = ref<string>('');
   const currentBidder = ref<string>('');
@@ -54,6 +56,23 @@ export function useBidView() {
 
   function onModalClose(): void {
     editingBid.value = null;
+  }
+
+  function openDetailModal(bid: TBid): void {
+    detailBid.value = { ...bid };
+    showDetailModal.value = true;
+  }
+
+  watch(showDetailModal, (open) => {
+    if (!open) detailBid.value = null;
+  });
+
+  async function onDetailUpdated(): Promise<void> {
+    await loadBids();
+    if (detailBid.value) {
+      const next = bids.value.find((b) => b.id === detailBid.value!.id);
+      if (next) detailBid.value = next;
+    }
   }
 
   async function loadBids(): Promise<void> {
@@ -145,9 +164,13 @@ export function useBidView() {
     error,
     showBidModal,
     editingBid,
+    showDetailModal,
+    detailBid,
     openCreateModal,
     openEditModal,
+    openDetailModal,
     onModalClose,
+    onDetailUpdated,
     loadBids,
     deleteBid,
     formatDate,

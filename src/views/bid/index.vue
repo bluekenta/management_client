@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import NewBidModal from '@/components/NewBidModal.vue';
+import BidDetailModal from '@/components/BidDetailModal.vue';
 import { useBidView } from './script';
 
 const {
@@ -19,9 +20,13 @@ const {
   error,
   showBidModal,
   editingBid,
+  showDetailModal,
+  detailBid,
   openCreateModal,
   openEditModal,
+  openDetailModal,
   onModalClose,
+  onDetailUpdated,
   loadBids,
   deleteBid,
   formatDate,
@@ -143,6 +148,12 @@ const {
       @close="onModalClose"
     />
 
+    <BidDetailModal
+      v-model:open="showDetailModal"
+      :bid="detailBid"
+      @updated="onDetailUpdated"
+    />
+
     <section class="list">
       <h2 class="list-title">応募情報</h2>
       <el-table
@@ -206,8 +217,17 @@ const {
             {{ row.caller ?? '—' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" fixed="right">
+        <!-- 経由エージェント -->
+        <el-table-column label="経由エージェント" min-width="120">
           <template #default="{ row }">
+            {{ row.agent?.companyName ?? '—' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="220" fixed="right">
+          <template #default="{ row }">
+            <el-button type="primary" link size="small" @click="openDetailModal(row)">
+              詳細
+            </el-button>
             <el-button type="primary" link size="small" @click="openEditModal(row)">
               編集
             </el-button>

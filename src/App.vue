@@ -21,6 +21,7 @@ const activeIndex = computed(() => (route.path === '/bid' ? '/bid' : '/'));
       >
         <el-menu-item index="/">ホーム</el-menu-item>
         <el-menu-item index="/bid">応募管理</el-menu-item>
+        <el-menu-item index="/agent">エージェント管理</el-menu-item>
       </el-menu>
       <div class="theme-toggle">
         <el-tooltip :content="isDark ? 'ライト' : 'ダーク'" placement="bottom">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from "vue";
-import { gql, BID, CONFIG } from "@/gql";
+import { gql, BID, AGENT, CONFIG } from "@/gql";
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -22,6 +22,7 @@ const form = ref({
   lang: "",
   bidder: "",
   caller: "",
+  agentId: null as number | null,
   applyDate: todayStr(),
   lastUpdated: todayStr(),
 });
@@ -31,6 +32,7 @@ const statusOptions = ref<string[]>([]);
 const langOptions = ref<string[]>([]);
 const bidderOptions = ref<string[]>([]);
 const callerOptions = ref<string[]>([]);
+const activeAgents = ref<{ id: number; companyName: string }[]>([]);
 
 const isEdit = computed(
   () => props.bid != null && typeof props.bid.id === "number",
@@ -44,10 +46,10 @@ async function loadOptions() {
   try {
     statusOptions.value = ((await gql(CONFIG.BID_STATUSES_QUERY)).bidStatuses ??
       []) as string[];
-    // config queries return fields named `langs`, `bidders`, and `callers`
     langOptions.value = ((await gql(CONFIG.BID_LANGS_QUERY)).langs ?? []) as string[];
     bidderOptions.value = ((await gql(CONFIG.BID_BIDDERS_QUERY)).bidders ?? []) as string[];
     callerOptions.value = ((await gql(CONFIG.BID_CALLERS_QUERY)).callers ?? []) as string[];
+    activeAgents.value = ((await gql(AGENT.ACTIVE_AGENTS_QUERY)).activeAgents ?? []) as { id: number; companyName: string }[];
   } catch (e) {
     console.error("Failed to load options:", e);
   }
@@ -64,6 +66,7 @@ function resetForm() {
     lang: "EN",
     bidder: "WEIMA",
     caller: "GALDINO",
+    agentId: null,
     applyDate: todayStr(),
     lastUpdated: todayStr(),
   };
@@ -85,6 +88,7 @@ function fillForm(b) {
     lang: b.lang ?? "EN",
     bidder: b.bidder ?? "",
     caller: b.caller ?? "",
+    agentId: b.agentId ?? null,
     applyDate: parseDateOnly(b.applyDate),
     lastUpdated: todayStr(),
   };
@@ -112,6 +116,7 @@ async function submit() {
           lang: form.value.lang,
           bidder: form.value.bidder,
           caller: form.value.caller,
+          agentId: form.value.agentId || undefined,
           lastUpdated: form.value.lastUpdated || todayStr(),
         },
       });
@@ -126,6 +131,7 @@ async function submit() {
           lang: form.value.lang,
           bidder: form.value.bidder,
           caller: form.value.caller,
+          agentId: form.value.agentId || undefined,
           applyDate: form.value.applyDate || todayStr(),
         },
       });
@@ -258,6 +264,22 @@ watch(
             :key="c"
             :label="c"
             :value="c"
+          />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="経由エージェント">
+        <el-select
+          v-model="form.agentId"
+          placeholder="経由エージェント"
+          clearable
+          style="width: 100%"
+        >
+          <el-option
+            v-for="a in activeAgents"
+            :key="a.id"
+            :label="a.companyName"
+            :value="a.id"
           />
         </el-select>
       </el-form-item>

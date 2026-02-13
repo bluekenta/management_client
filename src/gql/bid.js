@@ -1,16 +1,30 @@
+const BID_AGENT_FRAGMENT = `
+  agent {
+    id
+    companyName
+  }
+`;
+
+const BID_FIELDS = `
+  id
+  companyName
+  url
+  jobLink
+  status
+  applyDate
+  lastUpdated
+  lang
+  bidder
+  caller
+  agentId
+  detail
+  ${BID_AGENT_FRAGMENT}
+`;
+
 export const BIDS_QUERY = `
   query Bids {
     bids {
-      id
-      companyName
-      url
-      jobLink
-      status
-      applyDate
-      lastUpdated
-      lang
-      bidder
-      caller
+      ${BID_FIELDS}
     }
   }
 `;
@@ -18,16 +32,7 @@ export const BIDS_QUERY = `
 export const BIDS_BY_CONDITION_QUERY = `
   query BidsByCondition($condition: BidConditionInput!) {
     bidsByCondition(condition: $condition) {
-      id
-      companyName
-      url
-      jobLink
-      status
-      applyDate
-      lastUpdated
-      lang
-      bidder
-      caller
+      ${BID_FIELDS}
     }
   }
 `;
@@ -35,16 +40,7 @@ export const BIDS_BY_CONDITION_QUERY = `
 export const CREATE_BID_MUTATION = `
   mutation CreateBid($input: CreateBidInput!) {
     createBid(input: $input) {
-      id
-      companyName
-      url
-      jobLink
-      status
-      applyDate
-      lastUpdated
-      lang
-      bidder
-      caller
+      ${BID_FIELDS}
     }
   }
 `;
@@ -58,16 +54,7 @@ export const DELETE_BID_MUTATION = `
 export const UPDATE_BID_MUTATION = `
   mutation UpdateBid($id: Int!, $input: UpdateBidInput!) {
     updateBid(id: $id, input: $input) {
-      id
-      companyName
-      url
-      jobLink
-      applyDate
-      status
-      lastUpdated
-      lang
-      bidder
-      caller
+      ${BID_FIELDS}
     }
   }
 `;
