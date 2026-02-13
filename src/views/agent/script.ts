@@ -49,11 +49,7 @@ export function useAgentView() {
 
   function formatDate(iso: string | null | undefined): string {
     if (!iso) return '—';
-    return new Date(iso).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return new Date(iso).toISOString().slice(0, 10);
   }
 
   onMounted(() => {

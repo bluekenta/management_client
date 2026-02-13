@@ -19,14 +19,14 @@ const {
 <template>
   <div class="bidder-page">
     <header class="page-header">
-      <h1>プロセス担当者（Bidder）管理</h1>
+      <h1>プロセス担当者管理</h1>
     </header>
 
     <el-alert v-if="error" type="error" :title="error" show-icon class="error-alert" />
 
     <div class="toolbar">
       <el-button type="primary" @click="openCreateModal">
-        + Bidderを追加
+        + 追加
       </el-button>
     </div>
 
@@ -39,7 +39,6 @@ const {
     />
 
     <section class="list">
-      <h2 class="list-title">Bidder一覧</h2>
       <el-table
         v-loading="loading"
         :data="bidders"
