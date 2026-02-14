@@ -88,7 +88,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
       <!-- ステップ（wait / applied / reject） -->
       <el-select
         v-model="currentStep"
-        placeholder="ステップで絞り込み"
+        placeholder="ステップ"
         clearable
         class="filter-select"
       >
@@ -104,7 +104,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
       <!-- 状態（resume, Intro, firsttech, ...） -->
       <el-select
         v-model="currentStatus"
-        placeholder="状態で絞り込み"
+        placeholder="状態"
         clearable
         class="filter-select"
       >
@@ -120,7 +120,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
       <!-- プロセス担当者リスト -->
       <el-select
         v-model="currentBidderId"
-        placeholder="プロセス担当者で絞り込み"
+        placeholder="プロセス担当者"
         clearable
         class="filter-select"
       >
@@ -136,7 +136,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
       <!-- MTG担当者リスト -->
       <el-select
         v-model="currentCallerId"
-        placeholder="MTG担当者で絞り込み"
+        placeholder="MTG担当者"
         clearable
         class="filter-select"
       >
@@ -152,7 +152,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
       <!-- 言語リスト -->
       <el-select
         v-model="currentLang"
-        placeholder="言語で絞り込み"
+        placeholder="言語"
         clearable
         class="filter-select"
       >
