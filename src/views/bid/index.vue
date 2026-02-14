@@ -166,7 +166,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
       </el-select>
 
       <!-- 応募情報を追加 -->
-      <el-button type="primary" @click="openCreateModal">
+      <el-button type="primary" class="toolbar-action" @click="openCreateModal">
         + 応募情報を追加
       </el-button>
     </div>
@@ -196,6 +196,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
         :default-sort="{ prop: 'applyDate', order: 'descending' }"
         @sort-change="onSortChange"
       >
+        <el-table-column type="index" label="No" width="56" :index="(i) => i + 1" />
         <el-table-column prop="companyName" label="会社名" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'companyName')" class="cell-edit" @click.stop>
@@ -406,18 +407,28 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
 }
 .toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
 .filter-input {
   width: 200px;
+  min-width: 200px;
+  flex-shrink: 0;
 }
 .filter-date {
-  width: 140px;
+  width: 160px;
+  min-width: 160px;
+  flex-shrink: 0;
 }
 .filter-select {
   width: 200px;
+  min-width: 200px;
+  flex-shrink: 0;
+}
+.toolbar-action {
+  flex-shrink: 0;
 }
 .list-title {
   font-size: 1rem;
