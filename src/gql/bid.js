@@ -49,7 +49,10 @@ export const BIDS_QUERY = `
 export const BIDS_BY_CONDITION_QUERY = `
   query BidsByCondition($condition: BidConditionInput!) {
     bidsByCondition(condition: $condition) {
-      ${BID_FIELDS}
+      bids {
+        ${BID_FIELDS}
+      }
+      total
     }
   }
 `;

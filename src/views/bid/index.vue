@@ -39,6 +39,10 @@ const {
   loadBids,
   formatDate,
   formatDateForPicker,
+  currentPage,
+  totalBids,
+  PAGE_SIZE,
+  goToPage,
 } = useBidView();
 
 function isWebsiteUrl(value: string | null | undefined): boolean {
@@ -196,7 +200,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
         :default-sort="{ prop: 'applyDate', order: 'descending' }"
         @sort-change="onSortChange"
       >
-        <el-table-column type="index" label="No" width="56" :index="(i) => i + 1" />
+        <el-table-column type="index" label="No" width="56" :index="(i) => (currentPage - 1) * PAGE_SIZE + i + 1" />
         <el-table-column prop="companyName" label="会社名" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'companyName')" class="cell-edit" @click.stop>
@@ -391,6 +395,15 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+        v-if="totalBids > PAGE_SIZE"
+        class="pagination"
+        :current-page="currentPage"
+        :page-size="PAGE_SIZE"
+        :total="totalBids"
+        layout="total, prev, pager, next"
+        @current-change="goToPage"
+      />
       <el-empty v-if="!loading && !sortedBids.length" description="応募情報が見つかりません。" />
     </section>
   </div>
@@ -437,7 +450,11 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
   color: var(--el-text-color-secondary);
 }
 .bid-table {
+  margin-bottom: 0.75rem;
+}
+.pagination {
   margin-bottom: 1rem;
+  justify-content: flex-start;
 }
 .cell-clickable {
   cursor: pointer;

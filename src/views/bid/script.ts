@@ -21,6 +21,11 @@ export function useBidView() {
   const startDate = ref<string>('');
   const endDate = ref<string>('');
 
+  const PAGE_SIZE = 50;
+  const currentPage = ref(1);
+  const totalBids = ref(0);
+  const lastFilterJson = ref('');
+
   const steps = ref<string[]>([]);
   const statuses = ref<string[]>([]);
   const bidders = ref<{ id: number; name: string }[]>([]);
@@ -252,12 +257,18 @@ export function useBidView() {
     error.value = null;
     try {
       const data = await gql(BID.BIDS_BY_CONDITION_QUERY, { condition });
-      bids.value = (data.bidsByCondition ?? []) as TBid[];
+      const result = data.bidsByCondition;
+      bids.value = (result?.bids ?? []) as TBid[];
+      totalBids.value = result?.total ?? 0;
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
     } finally {
       loading.value = false;
     }
+  }
+
+  function goToPage(page: number): void {
+    currentPage.value = Math.max(1, page);
   }
 
   watch([startDate, endDate], () => {
@@ -267,9 +278,19 @@ export function useBidView() {
   });
 
   watch(
-    [currentStep, currentStatus, currentBidderId, currentCallerId, currentLang, companyNameSearch, startDate, endDate],
+    [
+      currentStep,
+      currentStatus,
+      currentBidderId,
+      currentCallerId,
+      currentLang,
+      companyNameSearch,
+      startDate,
+      endDate,
+      currentPage,
+    ],
     () => {
-      const condition: IBidConditionInput = {
+      const filterPart: Omit<IBidConditionInput, 'offset'> = {
         status: currentStatus.value || undefined,
         bidderId: currentBidderId.value === '' ? undefined : currentBidderId.value,
         callerId: currentCallerId.value === '' ? undefined : currentCallerId.value,
@@ -278,7 +299,16 @@ export function useBidView() {
         startDate: (startDate.value ?? '').toString().trim() || undefined,
         endDate: (endDate.value ?? '').toString().trim() || undefined,
       };
-      if (currentStep.value) condition.step = currentStep.value;
+      if (currentStep.value) filterPart.step = currentStep.value;
+      const filterJson = JSON.stringify(filterPart);
+      if (filterJson !== lastFilterJson.value) {
+        lastFilterJson.value = filterJson;
+        currentPage.value = 1;
+      }
+      const condition: IBidConditionInput = {
+        ...filterPart,
+        offset: (currentPage.value - 1) * PAGE_SIZE,
+      };
       loadBidsByCondition(condition);
     },
     { immediate: true },
@@ -326,5 +356,9 @@ export function useBidView() {
     deleteBid,
     formatDate,
     formatDateForPicker,
+    currentPage,
+    totalBids,
+    PAGE_SIZE,
+    goToPage,
   };
 }
