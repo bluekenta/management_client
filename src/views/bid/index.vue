@@ -61,6 +61,14 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
     <el-alert v-if="error" type="error" :title="error" show-icon class="error-alert" />
 
     <div class="toolbar">
+      <!-- 会社名検索 -->
+      <el-input
+        v-model="companyNameSearch"
+        placeholder="会社名で検索"
+        clearable
+        class="filter-input"
+      />
+
       <!-- 応募日範囲（未指定時は直近1週間。終了日は開始日より前を選択不可） -->
       <el-date-picker
         v-model="startDate"
@@ -79,14 +87,6 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
         clearable
         class="filter-date"
         :disabled-date="startDate ? (d) => new Date(d) < new Date(startDate) : undefined"
-      />
-
-      <!-- 会社名検索 -->
-      <el-input
-        v-model="companyNameSearch"
-        placeholder="会社名で検索"
-        clearable
-        class="filter-input"
       />
 
       <!-- ステップ（wait / applied / reject） -->
