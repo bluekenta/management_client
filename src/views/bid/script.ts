@@ -21,7 +21,7 @@ export function useBidView() {
   const startDate = ref<string>('');
   const endDate = ref<string>('');
 
-  const PAGE_SIZE = 50;
+  const PAGE_SIZE = 20;
   const currentPage = ref(1);
   const totalBids = ref(0);
   const lastFilterJson = ref('');
