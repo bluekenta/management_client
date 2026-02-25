@@ -186,8 +186,9 @@ watch(
   <el-dialog
     :model-value="open"
     :title="modalTitle"
-    width="420px"
+    width="720px"
     destroy-on-close
+    class="new-bid-modal"
     @update:model-value="
       (v) => {
         if (!v) close();
@@ -195,137 +196,137 @@ watch(
     "
     @close="close"
   >
-    <el-form label-position="top" @submit.prevent="submit">
+    <el-form label-position="top" @submit.prevent="submit" class="form-two-cols">
       <el-alert
         v-if="error"
         type="error"
         :title="error"
         show-icon
-        class="form-error"
+        class="form-error form-error-full"
       />
 
-      <el-form-item label="会社名" required>
-        <el-input v-model="form.companyName" placeholder="会社名" clearable />
-      </el-form-item>
-      <el-form-item label="URL">
-        <el-input
-          v-model="form.url"
-          type="url"
-          placeholder="https://..."
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="求人URL">
-        <el-input
-          v-model="form.jobLink"
-          type="url"
-          placeholder="https://..."
-          clearable
-        />
-      </el-form-item>
-
-      <el-form-item v-if="!isEdit" label="応募日">
-        <el-date-picker
-          v-model="form.applyDate"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="日付を選択"
-          style="width: 100%"
-        />
-      </el-form-item>
-      <el-form-item v-if="isEdit" label="最終面接">
-        <el-date-picker
-          v-model="form.lastUpdated"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="日付を選択"
-          style="width: 100%"
-        />
-      </el-form-item>
-
-      <el-form-item label="ステップ">
-        <el-select v-model="form.step" placeholder="ステップ" style="width: 100%">
-          <el-option
-            v-for="s in stepOptions"
-            :key="s"
-            :label="s"
-            :value="s"
+      <div class="form-col">
+        <el-form-item label="会社名" required>
+          <el-input v-model="form.companyName" placeholder="会社名" clearable />
+        </el-form-item>
+        <el-form-item label="URL">
+          <el-input
+            v-model="form.url"
+            type="url"
+            placeholder="https://..."
+            clearable
           />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="状態">
-        <el-select v-model="form.status" placeholder="状態" style="width: 100%">
-          <el-option
-            v-for="s in statusOptions"
-            :key="s"
-            :label="s"
-            :value="s"
+        </el-form-item>
+        <el-form-item label="求人URL">
+          <el-input
+            v-model="form.jobLink"
+            type="url"
+            placeholder="https://..."
+            clearable
           />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="言語">
-        <el-select v-model="form.lang" placeholder="言語" style="width: 100%">
-          <el-option v-for="l in langOptions" :key="l" :label="l" :value="l" />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="応募者">
-        <el-select
-          v-model="form.bidderId"
-          placeholder="応募者"
-          clearable
-          style="width: 100%"
-        >
-          <el-option
-            v-for="b in bidderOptions"
-            :key="b.id"
-            :label="b.name"
-            :value="b.id"
+        </el-form-item>
+        <el-form-item v-if="!isEdit" label="応募日">
+          <el-date-picker
+            v-model="form.applyDate"
+            type="date"
+            value-format="YYYY-MM-DD"
+            placeholder="日付を選択"
+            style="width: 100%"
           />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="MTG担当者">
-        <el-select
-          v-model="form.callerId"
-          placeholder="MTG担当者"
-          clearable
-          style="width: 100%"
-        >
-          <el-option
-            v-for="c in callerOptions"
-            :key="c.id"
-            :label="c.name"
-            :value="c.id"
+        </el-form-item>
+        <el-form-item v-if="isEdit" label="最終面接">
+          <el-date-picker
+            v-model="form.lastUpdated"
+            type="date"
+            value-format="YYYY-MM-DD"
+            placeholder="日付を選択"
+            style="width: 100%"
           />
-        </el-select>
-      </el-form-item>
+        </el-form-item>
+        <el-form-item label="ステップ">
+          <el-select v-model="form.step" placeholder="ステップ" style="width: 100%">
+            <el-option
+              v-for="s in stepOptions"
+              :key="s"
+              :label="s"
+              :value="s"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状態">
+          <el-select v-model="form.status" placeholder="状態" style="width: 100%">
+            <el-option
+              v-for="s in statusOptions"
+              :key="s"
+              :label="s"
+              :value="s"
+            />
+          </el-select>
+        </el-form-item>
+      </div>
 
-      <el-form-item label="経由エージェント">
-        <el-select
-          v-model="form.agentId"
-          placeholder="経由エージェント"
-          clearable
-          style="width: 100%"
-        >
-          <el-option
-            v-for="a in activeAgents"
-            :key="a.id"
-            :label="a.companyName"
-            :value="a.id"
-          />
-        </el-select>
-      </el-form-item>
+      <div class="form-col">
+        <el-form-item label="言語">
+          <el-select v-model="form.lang" placeholder="言語" style="width: 100%">
+            <el-option v-for="l in langOptions" :key="l" :label="l" :value="l" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="応募者">
+          <el-select
+            v-model="form.bidderId"
+            placeholder="応募者"
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="b in bidderOptions"
+              :key="b.id"
+              :label="b.name"
+              :value="b.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="MTG担当者">
+          <el-select
+            v-model="form.callerId"
+            placeholder="MTG担当者"
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="c in callerOptions"
+              :key="c.id"
+              :label="c.name"
+              :value="c.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="経由エージェント">
+          <el-select
+            v-model="form.agentId"
+            placeholder="経由エージェント"
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="a in activeAgents"
+              :key="a.id"
+              :label="a.companyName"
+              :value="a.id"
+            />
+          </el-select>
+        </el-form-item>
+      </div>
+    </el-form>
 
+    <template #footer>
       <div class="form-actions">
         <el-button @click="close">キャンセル</el-button>
         <el-button type="primary" :loading="submitting" @click="submit">
           {{ submitLabel }}
         </el-button>
       </div>
-    </el-form>
+    </template>
   </el-dialog>
 </template>
 
@@ -333,10 +334,34 @@ watch(
 .form-error {
   margin-bottom: 1rem;
 }
+.form-error-full {
+  grid-column: 1 / -1;
+}
+.form-two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1.5rem;
+  overflow: visible;
+}
+.form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+.form-col :deep(.el-form-item) {
+  margin-bottom: 1rem;
+}
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: 1.25rem;
+}
+
+/* Keep dialog and body fit in viewport without requiring scroll */
+:deep(.el-dialog__body) {
+  max-height: min(80vh, 520px);
+  overflow-y: auto;
+  padding-bottom: 0.5rem;
 }
 </style>
