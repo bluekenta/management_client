@@ -197,7 +197,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
         stripe
         style="width: 100%"
         class="bid-table"
-        :default-sort="{ prop: 'applyDate', order: 'descending' }"
+        :default-sort="{ prop: 'createdAt', order: 'descending' }"
         @sort-change="onSortChange"
       >
         <el-table-column type="index" label="No" width="56" :index="(i) => (currentPage - 1) * PAGE_SIZE + i + 1" />

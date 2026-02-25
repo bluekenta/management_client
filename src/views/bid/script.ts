@@ -133,7 +133,7 @@ export function useBidView() {
 
   const filteredBids = computed(() => bids.value);
 
-  const sortProp = ref<string>('applyDate');
+  const sortProp = ref<string>('createdAt');
   const sortOrder = ref<'ascending' | 'descending' | null>('descending');
 
   function getSortValue(row: TBid, prop: string): string | number {
@@ -144,6 +144,8 @@ export function useBidView() {
         return row.applyDate ? new Date(row.applyDate).getTime() : 0;
       case 'lastUpdated':
         return row.lastUpdated ? new Date(row.lastUpdated).getTime() : 0;
+      case 'createdAt':
+        return row.createdAt ? new Date(row.createdAt).getTime() : 0;
       case 'step':
         return row.step ?? '';
       case 'status':
@@ -178,7 +180,7 @@ export function useBidView() {
   });
 
   function onSortChange({ prop, order }: { prop?: string; order?: string | null }): void {
-    sortProp.value = prop ?? 'applyDate';
+    sortProp.value = prop ?? 'createdAt';
     sortOrder.value = (order === 'ascending' || order === 'descending' ? order : null) ?? 'descending';
   }
 

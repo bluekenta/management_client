@@ -15,5 +15,6 @@ export interface TBid {
   agentId?: number | null;
   agent?: { id: number; companyName: string } | null;
   detail?: string | null;
+  createdAt?: string | null;
   updatedAt?: string | null;
 }

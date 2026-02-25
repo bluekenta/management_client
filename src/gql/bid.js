@@ -33,6 +33,7 @@ const BID_FIELDS = `
   callerId
   agentId
   detail
+  createdAt
   ${BID_AGENT_FRAGMENT}
   ${BID_BIDDER_FRAGMENT}
   ${BID_CALLER_FRAGMENT}
