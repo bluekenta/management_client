@@ -225,24 +225,6 @@ watch(
             clearable
           />
         </el-form-item>
-        <el-form-item v-if="!isEdit" label="応募日">
-          <el-date-picker
-            v-model="form.applyDate"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="日付を選択"
-            style="width: 100%"
-          />
-        </el-form-item>
-        <el-form-item v-if="isEdit" label="最終面接">
-          <el-date-picker
-            v-model="form.lastUpdated"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="日付を選択"
-            style="width: 100%"
-          />
-        </el-form-item>
         <el-form-item label="ステップ">
           <el-select v-model="form.step" placeholder="ステップ" style="width: 100%">
             <el-option
@@ -266,6 +248,24 @@ watch(
       </div>
 
       <div class="form-col">
+        <el-form-item v-if="!isEdit" label="応募日">
+          <el-date-picker
+            v-model="form.applyDate"
+            type="date"
+            value-format="YYYY-MM-DD"
+            placeholder="日付を選択"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item v-if="isEdit" label="最終面接">
+          <el-date-picker
+            v-model="form.lastUpdated"
+            type="date"
+            value-format="YYYY-MM-DD"
+            placeholder="日付を選択"
+            style="width: 100%"
+          />
+        </el-form-item>
         <el-form-item label="言語">
           <el-select v-model="form.lang" placeholder="言語" style="width: 100%">
             <el-option v-for="l in langOptions" :key="l" :label="l" :value="l" />
