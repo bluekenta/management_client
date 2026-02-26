@@ -21,7 +21,9 @@ export function useBidView() {
   const startDate = ref<string>('');
   const endDate = ref<string>('');
 
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE_DEFAULT = 100;
+  const pageSizeOptions = [20, 50, 100, 200];
+  const pageSize = ref(PAGE_SIZE_DEFAULT);
   const currentPage = ref(1);
   const totalBids = ref(0);
   const lastFilterJson = ref('');
@@ -291,9 +293,10 @@ export function useBidView() {
       startDate,
       endDate,
       currentPage,
+      pageSize,
     ],
     () => {
-      const filterPart: Omit<IBidConditionInput, 'offset'> = {
+      const filterPart: Omit<IBidConditionInput, 'offset' | 'limit'> = {
         status: currentStatus.value || undefined,
         bidderId: currentBidderId.value === '' ? undefined : currentBidderId.value,
         callerId: currentCallerId.value === '' ? undefined : currentCallerId.value,
@@ -303,14 +306,15 @@ export function useBidView() {
         endDate: (endDate.value ?? '').toString().trim() || undefined,
       };
       if (currentStep.value) filterPart.step = currentStep.value;
-      const filterJson = JSON.stringify(filterPart);
+      const filterJson = JSON.stringify({ ...filterPart, limit: pageSize.value });
       if (filterJson !== lastFilterJson.value) {
         lastFilterJson.value = filterJson;
         currentPage.value = 1;
       }
       const condition: IBidConditionInput = {
         ...filterPart,
-        offset: (currentPage.value - 1) * PAGE_SIZE,
+        offset: (currentPage.value - 1) * pageSize.value,
+        limit: pageSize.value,
       };
       loadBidsByCondition(condition);
     },
@@ -361,7 +365,8 @@ export function useBidView() {
     formatDateForPicker,
     currentPage,
     totalBids,
-    PAGE_SIZE,
+    pageSize,
+    pageSizeOptions,
     goToPage,
   };
 }

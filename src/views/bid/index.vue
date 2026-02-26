@@ -41,7 +41,8 @@ const {
   formatDateForPicker,
   currentPage,
   totalBids,
-  PAGE_SIZE,
+  pageSize,
+  pageSizeOptions,
   goToPage,
 } = useBidView();
 
@@ -173,6 +174,21 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
       <el-button type="primary" class="toolbar-action" @click="openCreateModal">
         + 応募情報を追加
       </el-button>
+
+      <!-- 表示件数 -->
+      <span class="toolbar-label">表示件数</span>
+      <el-select
+        v-model="pageSize"
+        class="filter-select page-size-select"
+        @change="currentPage = 1"
+      >
+        <el-option
+          v-for="n in pageSizeOptions"
+          :key="n"
+          :label="`${n}件`"
+          :value="n"
+        />
+      </el-select>
     </div>
 
     <NewBidModal
@@ -199,7 +215,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
         class="bid-table"
         @sort-change="onSortChange"
       >
-        <el-table-column type="index" label="No" width="56" :index="(i) => (currentPage - 1) * PAGE_SIZE + i + 1" />
+        <el-table-column type="index" label="No" width="56" :index="(i) => (currentPage - 1) * pageSize + i + 1" />
         <el-table-column prop="companyName" label="会社名" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'companyName')" class="cell-edit" @click.stop>
@@ -408,10 +424,10 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
         </el-table-column>
       </el-table>
       <el-pagination
-        v-if="totalBids > PAGE_SIZE"
+        v-if="totalBids > pageSize"
         class="pagination"
         :current-page="currentPage"
-        :page-size="PAGE_SIZE"
+        :page-size="pageSize"
         :total="totalBids"
         layout="total, prev, pager, next"
         @current-change="goToPage"
@@ -454,6 +470,15 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
 }
 .toolbar-action {
   flex-shrink: 0;
+}
+.toolbar-label {
+  font-size: 0.875rem;
+  color: var(--el-text-color-secondary);
+  white-space: nowrap;
+}
+.page-size-select {
+  width: 100px;
+  min-width: 100px;
 }
 .list-title {
   font-size: 1rem;

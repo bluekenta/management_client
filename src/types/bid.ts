@@ -9,6 +9,8 @@ export interface IBidConditionInput {
   startDate?: string;
   /** YYYY-MM-DD; with startDate defines range. Empty = use default. */
   endDate?: string;
-  /** Pagination: skip this many records. Backend returns at most 100 per request. */
+  /** Pagination: skip this many records. */
   offset?: number;
+  /** Pagination: max items per page (default 100, server cap 200). */
+  limit?: number;
 }
