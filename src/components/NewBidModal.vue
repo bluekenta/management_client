@@ -31,6 +31,7 @@ function getCreateDefaults() {
     companyName: "",
     url: "",
     jobLink: "",
+    country: "",
     step: "APPLIED",
     status: "RESUME",
     lang: "EN",
@@ -46,6 +47,7 @@ const form = ref({
   companyName: "",
   url: "",
   jobLink: "",
+  country: "",
   step: "APPLIED",
   status: "RESUME",
   lang: "EN",
@@ -103,6 +105,7 @@ function fillForm(b) {
     companyName: b.companyName ?? "",
     url: b.url ?? "",
     jobLink: b.jobLink ?? "",
+    country: b.country ?? "",
     step: b.step ?? "",
     status: b.status ?? "",
     lang: b.lang ?? "",
@@ -132,6 +135,7 @@ async function submit() {
           companyName: form.value.companyName.trim(),
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
+          country: form.value.country.trim() || undefined,
           step: form.value.step || undefined,
           status: form.value.status || undefined,
           lang: form.value.lang || undefined,
@@ -148,6 +152,7 @@ async function submit() {
           companyName: form.value.companyName.trim(),
           url: form.value.url.trim() || undefined,
           jobLink: form.value.jobLink.trim() || undefined,
+          country: form.value.country.trim() || undefined,
           step: form.value.step || undefined,
           status: form.value.status || undefined,
           lang: form.value.lang || undefined,
@@ -206,8 +211,8 @@ watch(
       />
 
       <div class="form-col">
-        <el-form-item label="会社名" required>
-          <el-input v-model="form.companyName" placeholder="会社名" clearable />
+        <el-form-item label="Company Name" required>
+          <el-input v-model="form.companyName" placeholder="Company Name" clearable />
         </el-form-item>
         <el-form-item label="URL">
           <el-input
@@ -217,7 +222,7 @@ watch(
             clearable
           />
         </el-form-item>
-        <el-form-item label="求人URL">
+        <el-form-item label="Job Link">
           <el-input
             v-model="form.jobLink"
             type="url"
@@ -225,8 +230,14 @@ watch(
             clearable
           />
         </el-form-item>
-        <el-form-item label="ステップ">
-          <el-select v-model="form.step" placeholder="ステップ" style="width: 100%">
+        <el-form-item label="Country">
+          <el-input
+            v-model="form.country"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="Step">
+          <el-select v-model="form.step" placeholder="Step" style="width: 100%">
             <el-option
               v-for="s in stepOptions"
               :key="s"
@@ -235,8 +246,8 @@ watch(
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="状態">
-          <el-select v-model="form.status" placeholder="状態" style="width: 100%">
+        <el-form-item label="Status">
+          <el-select v-model="form.status" placeholder="Status" style="width: 100%">
             <el-option
               v-for="s in statusOptions"
               :key="s"
@@ -248,33 +259,33 @@ watch(
       </div>
 
       <div class="form-col">
-        <el-form-item v-if="!isEdit" label="応募日">
+        <el-form-item v-if="!isEdit" label="Apply Date">
           <el-date-picker
             v-model="form.applyDate"
             type="date"
             value-format="YYYY-MM-DD"
-            placeholder="日付を選択"
+            placeholder="Select Date"
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item v-if="isEdit" label="最終面接">
+        <el-form-item v-if="isEdit" label="Last Updated">
           <el-date-picker
             v-model="form.lastUpdated"
             type="date"
             value-format="YYYY-MM-DD"
-            placeholder="日付を選択"
+            placeholder="Select Date"
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item label="言語">
-          <el-select v-model="form.lang" placeholder="言語" style="width: 100%">
+        <el-form-item label="Language">
+          <el-select v-model="form.lang" placeholder="Language" style="width: 100%">
             <el-option v-for="l in langOptions" :key="l" :label="l" :value="l" />
           </el-select>
         </el-form-item>
-        <el-form-item label="応募者">
+        <el-form-item label="Bidder">
           <el-select
             v-model="form.bidderId"
-            placeholder="応募者"
+            placeholder="Bidder"
             clearable
             style="width: 100%"
           >
@@ -286,10 +297,10 @@ watch(
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="MTG担当者">
+        <el-form-item label="Caller">
           <el-select
             v-model="form.callerId"
-            placeholder="MTG担当者"
+            placeholder="Caller"
             clearable
             style="width: 100%"
           >
@@ -301,10 +312,10 @@ watch(
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="経由エージェント">
+        <el-form-item label="Agent">
           <el-select
             v-model="form.agentId"
-            placeholder="経由エージェント"
+            placeholder="Agent"
             clearable
             style="width: 100%"
           >
@@ -321,7 +332,7 @@ watch(
 
     <template #footer>
       <div class="form-actions">
-        <el-button @click="close">キャンセル</el-button>
+        <el-button @click="close">Cancel</el-button>
         <el-button type="primary" :loading="submitting" @click="submit">
           {{ submitLabel }}
         </el-button>

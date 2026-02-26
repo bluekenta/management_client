@@ -54,13 +54,14 @@ export function useBidView() {
     return c !== null && c.bidId === bidId && c.field === field;
   }
 
-  const TEXT_FIELDS = ['companyName', 'url', 'jobLink'];
+  const TEXT_FIELDS = ['companyName', 'url', 'jobLink', 'country'];
 
   function startEdit(row: TBid, field: string): void {
     editingCell.value = { bidId: row.id, field };
     if (field === 'companyName') editingTextValue.value = row.companyName ?? '';
     else if (field === 'url') editingTextValue.value = row.url ?? '';
     else if (field === 'jobLink') editingTextValue.value = row.jobLink ?? '';
+    else if (field === 'country') editingTextValue.value = row.country ?? '';
   }
 
   function cancelEdit(): void {
@@ -133,8 +134,8 @@ export function useBidView() {
 
   const filteredBids = computed(() => bids.value);
 
-  const sortProp = ref<string>('createdAt');
-  const sortOrder = ref<'ascending' | 'descending' | null>('descending');
+  const sortProp = ref<string>('');
+  const sortOrder = ref<'ascending' | 'descending' | null>(null);
 
   function getSortValue(row: TBid, prop: string): string | number {
     switch (prop) {
@@ -180,8 +181,8 @@ export function useBidView() {
   });
 
   function onSortChange({ prop, order }: { prop?: string; order?: string | null }): void {
-    sortProp.value = prop ?? 'createdAt';
-    sortOrder.value = (order === 'ascending' || order === 'descending' ? order : null) ?? 'descending';
+    sortProp.value = prop ?? '';
+    sortOrder.value = order === 'ascending' || order === 'descending' ? order : null;
   }
 
   function openCreateModal(): void {

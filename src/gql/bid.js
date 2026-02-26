@@ -24,6 +24,7 @@ const BID_FIELDS = `
   companyName
   url
   jobLink
+  country
   step
   status
   applyDate

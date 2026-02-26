@@ -85,6 +85,7 @@ watch(
     />
 
     <div v-if="!isEditing" class="detail-view">
+      <p v-if="bid?.country" class="detail-meta">Country: {{ bid.country }}</p>
       <div
         v-if="bid?.detail"
         class="detail-richtext"
@@ -122,6 +123,11 @@ watch(
 }
 .detail-view {
   min-height: 120px;
+}
+.detail-meta {
+  color: var(--el-text-color-secondary);
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
 }
 .detail-richtext {
   padding: 0.75rem 0;

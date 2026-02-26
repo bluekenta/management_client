@@ -197,7 +197,6 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
         stripe
         style="width: 100%"
         class="bid-table"
-        :default-sort="{ prop: 'createdAt', order: 'descending' }"
         @sort-change="onSortChange"
       >
         <el-table-column type="index" label="No" width="56" :index="(i) => (currentPage - 1) * PAGE_SIZE + i + 1" />
@@ -245,7 +244,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
               </el-select>
             </div>
             <div v-else class="cell-clickable" @click="startEdit(row, 'step')">
-              <el-tag size="small" :type="row.step === 'REJECT' ? 'danger' : row.step === 'APPLIED' ? 'success' : 'info'">
+              <el-tag size="small" :type="row.step === 'REJECT' ? 'danger' : row.step === 'APPLIED' || row.step === 'SUCCEED' ? 'success' : 'info'">
                 {{ row.step ?? '—' }}
               </el-tag>
             </div>
@@ -316,7 +315,20 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="lang" label="言語" sortable="custom">
+        <el-table-column label="Country" min-width="100">
+          <template #default="{ row }">
+            <div v-if="isEditing(row.id, 'country')" class="cell-edit" @click.stop>
+              <el-input v-model="editingTextValue" size="small" placeholder="Country" @click.stop />
+              <div class="cell-edit-actions">
+                <el-button type="primary" size="small" @click="confirmEditText">OK</el-button>
+              </div>
+            </div>
+            <div v-else class="cell-clickable" @click="startEdit(row, 'country')">
+              {{ row.country ?? '—' }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="lang" label="Language" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'lang')" class="cell-edit" @click.stop>
               <el-select
@@ -333,7 +345,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="bidderName" label="Bid" sortable="custom">
+        <el-table-column prop="bidderName" label="Bidder" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'bidderId')" class="cell-edit" @click.stop>
               <el-select
@@ -351,7 +363,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="callerName" label="Call" sortable="custom">
+        <el-table-column prop="callerName" label="Caller" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'callerId')" class="cell-edit" @click.stop>
               <el-select
@@ -369,7 +381,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="agentName" label="Agent" sortable="custom">
+        <el-table-column prop="agentName" label="By Agent" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'agentId')" class="cell-edit" @click.stop>
               <el-select
