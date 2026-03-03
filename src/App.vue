@@ -13,6 +13,7 @@ const { isLoggedIn } = useAuth();
 const activeIndex = computed(() => {
   const p = route.path;
   if (p === '/bid') return '/bid';
+  if (p === '/finished') return '/finished';
   if (p === '/agent') return '/agent';
   if (p === '/caller') return '/caller';
   if (p === '/bidder') return '/bidder';
@@ -39,6 +40,7 @@ function logout() {
         <el-menu-item index="/">ホーム</el-menu-item>
         <el-menu-item index="/chat">技術Q&A</el-menu-item>
         <el-menu-item index="/bid">応募管理</el-menu-item>
+        <el-menu-item index="/finished">完了</el-menu-item>
         <el-menu-item index="/agent">エージェント管理</el-menu-item>
         <el-menu-item index="/bidder">応募者管理</el-menu-item>
         <el-menu-item index="/caller">MTG担当者管理</el-menu-item>

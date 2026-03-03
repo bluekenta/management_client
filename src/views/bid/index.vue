@@ -260,7 +260,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
               </el-select>
             </div>
             <div v-else class="cell-clickable" @click="startEdit(row, 'step')">
-              <el-tag size="small" :type="row.step === 'REJECT' ? 'danger' : row.step === 'APPLIED' || row.step === 'SUCCEED' ? 'success' : 'info'">
+              <el-tag size="small" :type="row.step === 'REJECT' ? 'danger' : row.step === 'APPLIED' || row.step === 'SUCCEED' || row.step === 'FINISHED' ? 'success' : 'info'">
                 {{ row.step ?? '—' }}
               </el-tag>
             </div>

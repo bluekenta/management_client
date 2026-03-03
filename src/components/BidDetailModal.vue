@@ -54,6 +54,24 @@ async function save() {
   }
 }
 
+async function markAsFinished() {
+  if (props.bid == null) return;
+  submitting.value = true;
+  error.value = null;
+  try {
+    await gql(BID.UPDATE_BID_MUTATION, {
+      id: props.bid.id,
+      input: { step: 'FINISHED' },
+    });
+    emit('updated');
+    close();
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : String(e);
+  } finally {
+    submitting.value = false;
+  }
+}
+
 watch(
   () => [props.open, props.bid],
   () => {
@@ -93,6 +111,9 @@ watch(
       />
       <p v-else class="detail-empty">詳細がありません。</p>
       <div class="detail-actions">
+        <el-button v-if="bid?.step !== 'FINISHED'" type="success" @click="markAsFinished">
+          完了にする
+        </el-button>
         <el-button type="primary" @click="startEdit">編集</el-button>
         <el-button @click="close">閉じる</el-button>
       </div>
