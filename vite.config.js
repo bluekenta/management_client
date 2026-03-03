@@ -14,10 +14,10 @@ export default defineConfig({
   },
   server: {
     host: true, // listen on 0.0.0.0 so other devices can access via your LAN IP
-    port: 5173,
+    port: 9999,
     proxy: {
       '/graphql': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:9998',
         changeOrigin: true,
       },
     },

@@ -38,7 +38,7 @@ function logout() {
         class="nav-menu"
       >
         <el-menu-item index="/">ホーム</el-menu-item>
-        <el-menu-item index="/chat">技術Q&A</el-menu-item>
+        <!-- <el-menu-item index="/chat">技術Q&A</el-menu-item> -->
         <el-menu-item index="/bid">応募管理</el-menu-item>
         <el-menu-item index="/finished">完了</el-menu-item>
         <el-menu-item index="/agent">エージェント管理</el-menu-item>
