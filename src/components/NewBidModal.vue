@@ -201,7 +201,7 @@ watch(
     "
     @close="close"
   >
-    <el-form label-position="top" @submit.prevent="submit" class="form-two-cols">
+    <el-form label-position="top" @submit.prevent="submit" :class="isEdit ? 'form-two-cols' : 'form-one-col'">
       <el-alert
         v-if="error"
         type="error"
@@ -214,7 +214,7 @@ watch(
         <el-form-item label="Company Name" required>
           <el-input v-model="form.companyName" placeholder="Company Name" clearable />
         </el-form-item>
-        <el-form-item label="URL">
+        <el-form-item label="URL" v-if="isEdit">
           <el-input
             v-model="form.url"
             type="url"
@@ -230,7 +230,24 @@ watch(
             clearable
           />
         </el-form-item>
-        <el-form-item label="Country">
+
+        <el-form-item label="Caller">
+          <el-select
+            v-model="form.callerId"
+            placeholder="Caller"
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="c in callerOptions"
+              :key="c.id"
+              :label="c.name"
+              :value="c.id"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="Country" v-if="isEdit">
           <el-input
             v-model="form.country"
             clearable
@@ -246,7 +263,7 @@ watch(
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="Status">
+        <el-form-item label="Status" v-if="isEdit">
           <el-select v-model="form.status" placeholder="Status" style="width: 100%">
             <el-option
               v-for="s in statusOptions"
@@ -277,12 +294,12 @@ watch(
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item label="Language">
+        <el-form-item label="Language" v-if="isEdit">
           <el-select v-model="form.lang" placeholder="Language" style="width: 100%">
             <el-option v-for="l in langOptions" :key="l" :label="l" :value="l" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Bidder">
+        <el-form-item label="Bidder" v-if="isEdit">
           <el-select
             v-model="form.bidderId"
             placeholder="Bidder"
@@ -297,21 +314,7 @@ watch(
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="Caller">
-          <el-select
-            v-model="form.callerId"
-            placeholder="Caller"
-            clearable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="c in callerOptions"
-              :key="c.id"
-              :label="c.name"
-              :value="c.id"
-            />
-          </el-select>
-        </el-form-item>
+
         <el-form-item label="Agent">
           <el-select
             v-model="form.agentId"
@@ -365,7 +368,7 @@ watch(
 }
 .form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 0.75rem;
 }
 
