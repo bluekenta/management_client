@@ -331,7 +331,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="Country" min-width="100">
+        <!-- <el-table-column label="Country" min-width="100">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'country')" class="cell-edit" @click.stop>
               <el-input v-model="editingTextValue" size="small" placeholder="Country" @click.stop />
@@ -343,7 +343,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
               {{ row.country ?? '—' }}
             </div>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column prop="lang" label="Language" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'lang')" class="cell-edit" @click.stop>
@@ -361,7 +361,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="bidderName" label="Bidder" sortable="custom">
+        <!-- <el-table-column prop="bidderName" label="Bidder" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'bidderId')" class="cell-edit" @click.stop>
               <el-select
@@ -378,7 +378,7 @@ function isWebsiteUrl(value: string | null | undefined): boolean {
               {{ row.bidder?.name ?? '—' }}
             </div>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column prop="callerName" label="Caller" sortable="custom">
           <template #default="{ row }">
             <div v-if="isEditing(row.id, 'callerId')" class="cell-edit" @click.stop>
